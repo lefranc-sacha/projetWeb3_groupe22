@@ -58,6 +58,15 @@ const Game = () => {
         })
         .on('mouseout', function (event, d) {
           d3.select(this).style('fill', '#69b3a2');
+        })
+        // Ajout du gestionnaire de clic
+        .on('click', function (event, d) {
+          // Vérifier si le pays cliqué correspond au pays aléatoire
+          if (d.properties.name === randomCountry.properties.name) {
+            d3.select(this).style('fill', 'green'); // Remplir en vert si c'est correct
+          } else {
+            d3.select(this).style('fill', 'red'); // Remplir en rouge si c'est incorrect
+          }
         });
 
       // Ajouter des fonctionnalités de rotation
