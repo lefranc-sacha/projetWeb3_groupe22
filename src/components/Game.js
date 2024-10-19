@@ -6,10 +6,11 @@ const Game = () => {
   const [attempts, setAttempts] = useState(0);
   const [startTime, setStartTime] = useState(Date.now());
   const [randomCountry, setRandomCountry] = useState(null);
+  const [countriesFound, setCountriesFound] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Initialiser la carte D3
+    let countries;
     const width = 600;
     const height = 600;
     const svg = d3.select('svg')
@@ -18,7 +19,6 @@ const Game = () => {
       .style('display', 'block')
       .style('margin', '0 auto');
 
-    // Modifier la projection, retirer clipAngle pour éviter les trous blancs
     const projection = d3.geoOrthographic()
       .scale(250)
       .translate([width / 2, height / 2]);
@@ -27,28 +27,34 @@ const Game = () => {
 
     const graticule = d3.geoGraticule();
 
-    // Ajouter la grille de latitudes et longitudes
     svg.append('path')
       .datum(graticule)
       .attr('class', 'graticule')
       .attr('d', path)
       .attr('fill', 'none')
-      .attr('stroke', 'lightgray'); // Mettre des lignes grises pour la grille
+      .attr('stroke', 'lightgray');
 
-    // Charger les données GeoJSON
-    d3.json('https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson').then(world => {
-      const countries = world.features;
-      console.log('Countries loaded:', countries); 
-      
-      // Sélectionner un pays aléatoire
+    const selectRandomCountry = () => {
       const randomCountry = countries[Math.floor(Math.random() * countries.length)];
-      console.log('Random country selected:', randomCountry); 
       setRandomCountry(randomCountry);
+      return randomCountry;
+    };
+
+    const resetCountriesColor = () => {
+      svg.selectAll('path.country')
+        .style('fill', '#69b3a2');
+    };
+
+    d3.json('https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson').then(world => {
+      countries = world.features;
+      
+      const randomCountry = selectRandomCountry();
 
       svg.append('g')
         .selectAll('path')
         .data(countries)
         .enter().append('path')
+        .attr('class', 'country')
         .attr('fill', '#69b3a2')
         .attr('d', path)
         .style('stroke', 'white')
@@ -57,50 +63,59 @@ const Game = () => {
           d3.select(this).style('fill', 'orange');
         })
         .on('mouseout', function (event, d) {
-          d3.select(this).style('fill', '#69b3a2');
+          if (d.properties.name !== randomCountry.properties.name) {
+            d3.select(this).style('fill', '#69b3a2');
+          }
         })
-        // Ajout du gestionnaire de clic
         .on('click', function (event, d) {
-          // Vérifier si le pays cliqué correspond au pays aléatoire
+          setAttempts(prev => prev + 1);
           if (d.properties.name === randomCountry.properties.name) {
-            d3.select(this).style('fill', 'green'); // Remplir en vert si c'est correct
+            d3.select(this).style('fill', 'green');
+            setCountriesFound(prev => {
+              const newCount = prev + 1;
+              if (newCount === 3) {
+                endGame();
+              } else {
+                setTimeout(() => {
+                  resetCountriesColor();
+                  selectRandomCountry();
+                }, 1000);
+              }
+              return newCount;
+            });
           } else {
-            d3.select(this).style('fill', 'red'); // Remplir en rouge si c'est incorrect
+            d3.select(this).style('fill', 'red');
           }
         });
 
-      // Ajouter des fonctionnalités de rotation
       const drag = d3.drag().on('drag', (event) => {
         const rotate = projection.rotate();
         const k = 0.5;
         projection.rotate([rotate[0] + event.dx * k, rotate[1] - event.dy * k]);
-        svg.selectAll('path').attr('d', path); // Mettre à jour les chemins avec la nouvelle projection
+        svg.selectAll('path').attr('d', path);
       });
 
       svg.call(drag);
 
-      // Ajouter des fonctionnalités de zoom qui affectent l'échelle de la projection
       svg.call(d3.zoom().on('zoom', (event) => {
         const { k } = event.transform;
         projection.scale(250 * k);
-        svg.selectAll('path').attr('d', path); // Recalculer les chemins après zoom
+        svg.selectAll('path').attr('d', path);
       }));
     });
-
-    // Exemple : Incrémenter les tentatives lors du drop
-    svg.on('drop', () => setAttempts(attempts + 1));
-  }, [attempts]);
+  }, []);
 
   const endGame = () => {
     const endTime = Date.now();
     const timeTaken = (endTime - startTime) / 1000;
-    navigate('/statistics', { state: { attempts, timeTaken } });
+    navigate('/statistics', { state: { attempts, timeTaken, countriesFound: 3 } });
   };
 
   return (
     <div>
       <h2>Game</h2>
       {randomCountry && <p>Replace the country: {randomCountry.properties.name}</p>}
+      <p>Countries found: {countriesFound} / 3</p>
       <svg></svg>
       <button onClick={endGame}>End Game</button>
     </div>
