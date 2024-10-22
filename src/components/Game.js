@@ -68,11 +68,13 @@ const Game = () => {
       .style('stroke', 'white')
       .style('stroke-width', 0.5)
       .on('mouseover', function (event, d) {
-        d3.select(this).style('fill', 'orange');
+        if (d.properties.name !== randomCountry.properties.name || d3.select(this).style('fill') !== 'green') {
+          d3.select(this).style('fill', 'orange');
+        }
       })
       .on('mouseout', function (event, d) {
-        if (d.properties.name !== randomCountry.properties.name) {
-          d3.select(this).style('fill', '#69b3a2');
+        if (d3.select(this).style('fill') !== 'green') {
+          d3.select(this).style('fill', '#69b3a2'); // Ne change que si ce n'est pas le bon pays (vert)
         }
       })
       .on('click', function (event, d) {
