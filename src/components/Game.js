@@ -3,12 +3,14 @@ import * as d3 from 'd3';
 import { useNavigate } from 'react-router-dom';
 
 const Game = () => {
-  const [attempts, setAttempts] = useState(0);
+  const [totalAttempts, setTotalAttempts] = useState(0); 
+  const [incorrectAttempts, setIncorrectAttempts] = useState(0);
   const [startTime, setStartTime] = useState(Date.now());
   const [randomCountry, setRandomCountry] = useState(null);
   const [countriesFound, setCountriesFound] = useState(0);
+  const [gameEnded, setGameEnded] = useState(false); // New state to track if the game has ended
   const navigate = useNavigate();
-  const [countries, setCountries] = useState([]); // Nouvel état pour stocker les pays
+  const [countries, setCountries] = useState([]);
 
   useEffect(() => {
     const width = 600;
@@ -36,7 +38,7 @@ const Game = () => {
 
     d3.json('https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson').then(world => {
       const loadedCountries = world.features;
-      setCountries(loadedCountries);  // Stocke les pays dans l'état React
+      setCountries(loadedCountries);
       const initialRandomCountry = selectRandomCountry(loadedCountries);
       setRandomCountry(initialRandomCountry);
       drawMap(loadedCountries, initialRandomCountry, svg, path, projection);
@@ -55,7 +57,6 @@ const Game = () => {
   };
 
   const drawMap = (countriesList, randomCountry, svg, path, projection) => {
-    // Supprimer les anciens pays avant de redessiner
     svg.selectAll('g').remove();
 
     const countryPaths = svg.append('g')
@@ -74,28 +75,37 @@ const Game = () => {
       })
       .on('mouseout', function (event, d) {
         if (d3.select(this).style('fill') !== 'green') {
-          d3.select(this).style('fill', '#69b3a2'); // Ne change que si ce n'est pas le bon pays (vert)
+          d3.select(this).style('fill', '#69b3a2');
         }
       })
       .on('click', function (event, d) {
-        setAttempts(prev => prev + 1);
+        console.log("Clicked country:", d.properties.name);
+        setTotalAttempts(prev => {
+            console.log("Previous total attempts:", prev);
+            return prev + 1;
+        }); 
+
         if (d.properties.name === randomCountry.properties.name) {
           d3.select(this).style('fill', 'green');
           setCountriesFound(prev => {
             const newCount = prev + 1;
             if (newCount === 3) {
-              endGame();
+              setGameEnded(true);  // Set gameEnded to true instead of navigating immediately
             } else {
               setTimeout(() => {
                 resetCountriesColor(svg);
-                const newRandomCountry = selectRandomCountry(countriesList); // Sélectionne un nouveau pays
-                drawMap(countriesList, newRandomCountry, svg, path, projection); // Redessine la carte avec le nouveau pays
+                const newRandomCountry = selectRandomCountry(countriesList);
+                drawMap(countriesList, newRandomCountry, svg, path, projection);
               }, 1000);
             }
             return newCount;
           });
         } else {
           d3.select(this).style('fill', 'red');
+          setIncorrectAttempts(prev => {
+            console.log("Incorrect attempt made, previous incorrect attempts:", prev);
+            return prev + 1;
+          }); 
         }
       });
 
@@ -118,8 +128,19 @@ const Game = () => {
   const endGame = () => {
     const endTime = Date.now();
     const timeTaken = (endTime - startTime) / 1000;
-    navigate('/statistics', { state: { attempts, timeTaken, countriesFound: 3 } });
+
+    console.log("Total attempts at end:", totalAttempts);
+    console.log("Incorrect attempts at end:", incorrectAttempts);
   };
+
+  // Monitor the gameEnded state and navigate when it changes
+  useEffect(() => {
+    if (gameEnded) {
+      const endTime = Date.now();
+      const timeTaken = (endTime - startTime) / 1000;
+      navigate('/statistics', { state: { totalAttempts, incorrectAttempts, timeTaken, countriesFound: 3 } });
+    }
+  }, [gameEnded, totalAttempts, incorrectAttempts, startTime, navigate]);
 
   return (
     <div>
