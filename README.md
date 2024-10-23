@@ -13,9 +13,9 @@ Suivez les étapes ci-dessous pour installer et lancer le projet localement.
 
 Assurez-vous d'avoir Node.js installé sur votre machine. Ensuite, dans le répertoire racine du projet, exécutez la commande suivante pour installer les dépendances :
 
-```bash
+
 npm install
-```
+
 
 ### Étape 2 : Lancer le projet
 
