@@ -50,14 +50,26 @@ const GameTraining = () => {
             .attr('d', path)
             .style('stroke', 'white')
             .style('stroke-width', 0.5)
-            .on('click', function (event, d) {
-                const countryInfo = {
-                    name: d.properties.name,
-                    flag: `https://flagsapi.com/${d.properties.iso_a2}/flat/64.png/`,
-                    capital: getCountryCapital(d.properties.name), // Fonction pour obtenir la capitale
-                };
-                setSelectedCountry(countryInfo);
+            .on('click', async function (event, d) {
+                try {
+                    // Fetch the country code and capital asynchronously
+                    const countryCode = await getCountryCode(d.properties.name);
+                    const countryCapital = await getCountryCapital(d.properties.name);
+            
+                    // Build the countryInfo object with the fetched data
+                    const countryInfo = {
+                        name: d.properties.name,
+                        flag: `https://flagsapi.com/${countryCode}/flat/64.png`, // Use the fetched country code for the flag
+                        capital: countryCapital
+                    };
+            
+                    // Set the selected country with the new data
+                    setSelectedCountry(countryInfo);
+                } catch (error) {
+                    console.error('Error fetching country data:', error);
+                }
             })
+             
             .on('mouseover', function () {
                 d3.select(this).style('fill', 'orange');
             })
@@ -80,15 +92,31 @@ const GameTraining = () => {
             svg.selectAll('path').attr('d', path);
         }));
     };
+    
+    // Function to get country code using REST Countries API
+    async function getCountryCode(countryName) {
+        const response = await fetch(`https://restcountries.com/v3.1/name/${countryName}`);
+        const data = await response.json();
+        if (response.ok) {
+            // Return the ISO 3166-1 alpha-2 country code
+            return data[0].cca2;
+        } else {
+            throw new Error('Country not found');
+        }
+    }
 
-    // Exemple pour récupérer la capitale (à adapter selon ta source de données)
-    const getCountryCapital = (countryName) => {
-        const capitals = {
-            "France": "Paris",
-            // Ajoute d'autres pays ici
-        };
-        return capitals[countryName] || "Capitale inconnue";
-    };
+    // Function to get country capital using REST Countries API
+    async function getCountryCapital(countryName) {
+        const response = await fetch(`https://restcountries.com/v3.1/name/${countryName}`);
+        const data = await response.json();
+        if (response.ok) {
+            // Return the capital city of the country
+            return data[0].capital ? data[0].capital[0] : 'Capital not found';
+        } else {
+            throw new Error('Country not found');
+        }
+    }
+
 
     const handleHomePage = () => {
         navigate("/");
