@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import backgroundImage from '../../images/earth-11048_1920.jpg';
+
 
 function StartPage() {
   const navigate = useNavigate();
@@ -16,9 +18,10 @@ function StartPage() {
 
 
   return (
+    <div className="app-container" style={{ backgroundImage: `url(${backgroundImage})` }}>
     <div>
 
-      <h1 className="text-center py-3">Welcome to the Country-Capital Game</h1>
+      <h1 className='title'>Welcome to the Country-Capital Game</h1>
 
       <div className="container border border-primary  rounded-4">
         <div className="row ">
@@ -101,7 +104,7 @@ function StartPage() {
           </div>
 
 
-
+          </div>
           
         </div>
 
