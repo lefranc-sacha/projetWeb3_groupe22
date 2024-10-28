@@ -143,7 +143,7 @@ const Game = () => {
       if (gameEnded) {
         const endTime = Date.now();
         const timeTaken = (endTime - startTime) / 1000;
-        navigate('/statistics', { state: { totalAttempts, incorrectAttempts, timeTaken, countriesFound: 3 } });
+        navigate('/statistics', { state: { totalAttempts, incorrectAttempts, timeTaken, countriesFound} });
       }
     }, [gameEnded, totalAttempts, incorrectAttempts, startTime, navigate]);
   
