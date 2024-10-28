@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import * as d3 from 'd3';
 import { useNavigate } from 'react-router-dom';
+import backgroundImage from '../../images/earth-11048_1920.jpg';
 
 const GameTraining = () => {
     const navigate = useNavigate();
@@ -123,9 +124,10 @@ const GameTraining = () => {
     };
 
     return (
-        <div>
+        
+        <div className="app-container-training" style={{ backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
             <h1 className='text-center'>Training Mode</h1>
-            <div className="container border border-primary rounded-4">
+            <div className="container border border-primary rounded-4" >
                 <div className="row">
                     <div className="col">
                         <p>Train yourself, let's guess!</p>

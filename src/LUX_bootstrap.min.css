@@ -34,7 +34,7 @@
     
   }
   .app-container h5, h6, label {
-    color: white; /* Change la couleur des titres et des labels en blanc */
+    color: black; /* Change la couleur des titres et des labels en blanc */
   }
   
   .app-container-game {
@@ -47,10 +47,45 @@
   }
   
   .bg-overlay {
-    background-color: white; /* Fond blanc semi-transparent */
+    background-color: white; 
     padding: 20px;
     max-width: 80%;
     margin: auto;
+  }
+  .app-container-training{
+    background-size: cover;
+    background-position: center;
+    min-height: 100vh;
+  }
+  .app-container-training h1{
+    color: white;
+  }
+  .container.border.border-primary.rounded-4 {
+    background-color: white;
+    max-width: 60%;
+    margin: auto;
+}
+  .app-container-statistics {
+    min-height: 100vh; /* Prend toute la hauteur de l'écran */
+    width: 100%; /* Prend toute la largeur */
+    background-image: url(${backgroundImage});
+    background-size: cover; /* Meilleur que 100% 100% pour préserver le ratio */
+    background-position: center;
+    background-repeat: no-repeat;
+    margin: 0;
+    padding: 0;
+    position: fixed; /* Fixe le fond */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+  .app-container-statistics h1{ 
+    color: white;
+  }
+  .app-container-statistics  p { 
+    color: black;
+    
   }
   
 

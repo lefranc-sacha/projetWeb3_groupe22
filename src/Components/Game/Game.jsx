@@ -149,7 +149,7 @@ const Game = () => {
   
 
   return (
-    <div className="app-container-game" style={{ backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center', minHeight: '100vh' }}>
+    <div className="app-container-game" style={{ backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
     <div>
       <h2 className="text-center">Game</h2>
       <div className="container">
