@@ -134,8 +134,8 @@ const Game = () => {
       const endTime = Date.now();
       const timeTaken = (endTime - startTime) / 1000;
   
-      console.log("Total attempts at end:", totalAttempts);
-      console.log("Incorrect attempts at end:", incorrectAttempts);
+      // Navigate to the statistics page with game data
+      navigate('/statistics', { state: { totalAttempts, incorrectAttempts, timeTaken, countriesFound } });
     };
   
     // Monitor the gameEnded state and navigate when it changes
