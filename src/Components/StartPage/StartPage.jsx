@@ -21,7 +21,7 @@ function StartPage() {
     <div className="app-container" style={{ backgroundImage: `url(${backgroundImage})` }}>
     <div>
 
-      <h1 className='title'>Welcome to the Country-Capital Game</h1>
+      <h1 className='title'>Welcome to the Country Game</h1>
 
       <div className="container border border-primary  rounded-4">
         <div className="row ">
