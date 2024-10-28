@@ -37,6 +37,21 @@
     color: white; /* Change la couleur des titres et des labels en blanc */
   }
   
+  .app-container-game {
+    background-size: cover;
+    background-position: center;
+    min-height: 100vh; /* S'assure que l'image de fond occupe toute la hauteur de la page */
+  }
+  .app-container-game h2{
+    color: white;
+  }
+  
+  .bg-overlay {
+    background-color: white; /* Fond blanc semi-transparent */
+    padding: 20px;
+    max-width: 80%;
+    margin: auto;
+  }
   
 
   

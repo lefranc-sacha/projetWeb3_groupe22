@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import * as d3 from 'd3';
 import { useLocation, useNavigate } from 'react-router-dom';
+import backgroundImage from '../../images/earth-11048_1920.jpg';
 
 
 const Game = () => {
@@ -148,30 +149,29 @@ const Game = () => {
   
 
   return (
+    <div className="app-container-game" style={{ backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center', minHeight: '100vh' }}>
     <div>
-      <h2 className='text-center'>Game</h2>
+      <h2 className="text-center">Game</h2>
       <div className="container">
         <div className="row align-items-center">
-            <div className="col border border-primary rounded rounded-4">
-                <p>Game mode: {gameMode}</p>
-                    <p>Number of questions: {numberOfQuestions}</p>
-                    {randomCountry && <p>Replace the country: {randomCountry.properties.name}</p>}
-                    <p>Countries found: {countriesFound} / {numberOfQuestions}</p>
-
-                    <svg></svg>
-                </div>
-        </div>
-            
-
-        </div>
-      
-      <div className="row py-3">
-        <div className="col text-center">
-            <button onClick={endGame} className="btn btn-primary rounded-5">End Game</button>
+          <div className="col border border-primary rounded rounded-4 bg-overlay">
+            <p>Game mode: {gameMode}</p>
+            <p>Number of questions: {numberOfQuestions}</p>
+            {randomCountry && <p>Replace the country: {randomCountry.properties.name}</p>}
+            <p>Countries found: {countriesFound} / {numberOfQuestions}</p>
+            <svg></svg>
+          </div>
         </div>
       </div>
-      
+  
+      <div className="row py-3">
+        <div className="col text-center">
+          <button onClick={endGame} className="btn btn-primary rounded-5">End Game</button>
+        </div>
+      </div>
     </div>
+  </div>
+  
   );
 };
 
