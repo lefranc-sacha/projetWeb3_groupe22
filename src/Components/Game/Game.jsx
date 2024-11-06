@@ -13,7 +13,30 @@ const Game = () => {
     const [startTime, setStartTime] = useState(Date.now());
     const [randomCountry, setRandomCountry] = useState(null);
     const [countriesFound, setCountriesFound] = useState(0);
-    const [gameEnded, setGameEnded] = useState(false); // New state to track if the game has ended
+    const [gameEnded, setGameEnded] = useState(false);
+
+    const [elapsedTime, setElapsedTime] = useState(0); // New state for d3-timer based elapsed time
+    const [timer, setTimer] = useState(null); // Store reference to d3 timer
+
+    // Start d3-timer to track elapsed time
+    useEffect(() => {
+        const t = d3.timer((elapsed) => {
+            setElapsedTime(elapsed);
+        });
+        setTimer(t);
+        
+        return () => {
+            t.stop(); // Stop timer on unmount
+        };
+    }, []);
+
+    // Optionally, if there is a game end condition, stop the timer when game ends
+    useEffect(() => {
+        if (gameEnded && timer) {
+            timer.stop();
+        }
+    }, [gameEnded, timer]);
+ // New state to track if the game has ended
     const navigate = useNavigate();
     const [countries, setCountries] = useState([]);
   
