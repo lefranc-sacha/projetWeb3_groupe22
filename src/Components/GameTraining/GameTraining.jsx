@@ -25,6 +25,12 @@ const GameTraining = () => {
 
         const graticule = d3.geoGraticule();
 
+        // Dessiner le globe en bleu pour les océans
+        svg.append('path')
+            .datum({ type: 'Sphere' })  // Créer une sphère qui représente l'ensemble du globe
+            .attr('d', path)
+            .attr('fill', '#a0c4ff');  // Couleur bleu océan
+
         svg.append('path')
             .datum(graticule)
             .attr('class', 'graticule')
@@ -53,24 +59,18 @@ const GameTraining = () => {
             .style('stroke-width', 0.5)
             .on('click', async function (event, d) {
                 try {
-                    // Fetch the country code and capital asynchronously
                     const countryCode = await getCountryCode(d.properties.name);
                     const countryCapital = await getCountryCapital(d.properties.name);
-            
-                    // Build the countryInfo object with the fetched data
                     const countryInfo = {
                         name: d.properties.name,
-                        flag: `https://flagsapi.com/${countryCode}/flat/64.png`, // Use the fetched country code for the flag
+                        flag: `https://flagsapi.com/${countryCode}/flat/64.png`,
                         capital: countryCapital
                     };
-            
-                    // Set the selected country with the new data
                     setSelectedCountry(countryInfo);
                 } catch (error) {
                     console.error('Error fetching country data:', error);
                 }
             })
-             
             .on('mouseover', function () {
                 d3.select(this).style('fill', 'orange');
             })
@@ -94,59 +94,51 @@ const GameTraining = () => {
         }));
     };
     
-    // Function to get country code using REST Countries API
     async function getCountryCode(countryName) {
         const response = await fetch(`https://restcountries.com/v3.1/name/${countryName}`);
         const data = await response.json();
         if (response.ok) {
-            // Return the ISO 3166-1 alpha-2 country code
             return data[0].cca2;
         } else {
             throw new Error('Country not found');
         }
     }
 
-    // Function to get country capital using REST Countries API
     async function getCountryCapital(countryName) {
         const response = await fetch(`https://restcountries.com/v3.1/name/${countryName}`);
         const data = await response.json();
         if (response.ok) {
-            // Return the capital city of the country
             return data[0].capital ? data[0].capital[0] : 'Capital not found';
         } else {
             throw new Error('Country not found');
         }
     }
 
-
     const handleHomePage = () => {
         navigate("/");
     };
 
     return (
-        
         <div className="app-container-training" style={{ backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
             <h1 className='text-center'>Training Mode</h1>
-            <div className="container border border-primary rounded-4 p-3" >
+            <div className="container border border-primary rounded-4">
                 <div className="row">
-                    <div className="col text-center">
-                        <h5>Train yourself, let's guess!</h5>
-                    </div>
-                </div>
-
-                <div className="row ">
                     <div className="col">
-                        <svg className='border rounded-4 border-primary'></svg>
+                        <p>Train yourself, let's guess!</p>
                     </div>
                 </div>
 
-                {/* Fiche d'information du pays */}
+                <div className="row">
+                    <div className="col">
+                        <svg></svg>
+                    </div>
+                </div>
+
                 {selectedCountry && (
                     <div className="country-info-card" style={{ margin: '20px auto', padding: '10px', border: '1px solid #ccc', borderRadius: '8px', width: '300px', backgroundColor: '#f9f9f9' }}>
                         <h3>{selectedCountry.name}</h3>
                         <img src={selectedCountry.flag} alt={`Drapeau de ${selectedCountry.name}`} style={{ width: '100px', height: 'auto' }} />
                         <p><strong>Capitale :</strong> {selectedCountry.capital}</p>
-                        {/* Ajoute ici d'autres informations */}
                     </div>
                 )}
             </div>
