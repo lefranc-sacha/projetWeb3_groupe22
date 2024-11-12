@@ -127,16 +127,16 @@ const GameTraining = () => {
         
         <div className="app-container-training" style={{ backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
             <h1 className='text-center'>Training Mode</h1>
-            <div className="container border border-primary rounded-4" >
+            <div className="container border border-primary rounded-4 p-3" >
                 <div className="row">
-                    <div className="col">
-                        <p>Train yourself, let's guess!</p>
+                    <div className="col text-center">
+                        <h5>Train yourself, let's guess!</h5>
                     </div>
                 </div>
 
-                <div className="row">
+                <div className="row ">
                     <div className="col">
-                        <svg></svg>
+                        <svg className='border rounded-4 border-primary'></svg>
                     </div>
                 </div>
 
