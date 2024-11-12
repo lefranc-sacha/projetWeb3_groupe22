@@ -89,6 +89,12 @@ const Game = () => {
     const drawMap = (countriesList, randomCountry, svg, path, projection) => {
         svg.selectAll('g').remove();
 
+        // Dessiner le globe en bleu pour les océans
+        svg.append('path')
+            .datum({ type: 'Sphere' })  // Créer une sphère qui représente l'ensemble du globe
+            .attr('d', path)
+            .attr('fill', '#a0c4ff');  // Couleur bleu océan
+
         const countryPaths = svg.append('g')
             .selectAll('path')
             .data(countriesList)
