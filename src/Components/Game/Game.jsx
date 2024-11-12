@@ -15,17 +15,18 @@ const Game = () => {
     const [gameEnded, setGameEnded] = useState(false);
     const [elapsedTime, setElapsedTime] = useState(0);
     const [timer, setTimer] = useState(null);
-    const [autoRotate, setAutoRotate] = useState(true); // Nouvelle state pour la rotation automatique
-    const [streak, setStreak] = useState(0); // Nouvelle state pour les séries de bonnes réponses
     const navigate = useNavigate();
     const [countries, setCountries] = useState([]);
 
-    // Couleurs améliorées avec des transitions
+    // Colors using d3-color
     const baseColor = d3.color('#69b3a2');
     const hoverColor = d3.color('orange');
-    const correctColor = d3.color('#28a745');
-    const incorrectColor = d3.color('#dc3545');
-    const oceanColor = d3.color('#A8E1FF');
+    const correctColor = d3.color('green');
+    const incorrectColor = d3.color('red');
+    
+    // Create lighter/darker variants using d3-color methods
+    const lighterBase = baseColor.brighter(0.5);
+    const darkerBase = baseColor.darker(0.5);
 
     useEffect(() => {
         const t = d3.timer((elapsed) => {
@@ -50,41 +51,29 @@ const Game = () => {
             .style('display', 'block')
             .style('margin', '0 auto');
 
-        // Ajout de l'océan
-        svg.append('circle')
-            .attr('cx', width / 2)
-            .attr('cy', height / 2)
-            .attr('r', 250)
-            .attr('fill', oceanColor.toString())
-            .attr('class', 'ocean');
-
         const projection = d3.geoOrthographic()
             .scale(250)
             .translate([width / 2, height / 2]);
 
         const path = d3.geoPath().projection(projection);
 
-        // Graticules améliorés
-        const graticule = d3.geoGraticule()
-            .step([10, 10]);
+        const graticule = d3.geoGraticule();
 
         svg.append('path')
             .datum(graticule)
             .attr('class', 'graticule')
             .attr('d', path)
             .attr('fill', 'none')
-            .attr('stroke', '#DDD')
-            .attr('stroke-width', 0.5)
-            .attr('stroke-opacity', 0.5);
+            .attr('stroke', d3.color('lightgray').toString());
 
-            d3.json('https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson').then(world => {
-              const loadedCountries = world.features;
-              setCountries(loadedCountries);
-              const initialRandomCountry = selectRandomCountry(loadedCountries);
-              setRandomCountry(initialRandomCountry);
-              drawMap(loadedCountries, initialRandomCountry, svg, path, projection);
-          });
-      }, []);
+        d3.json('https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson').then(world => {
+            const loadedCountries = world.features;
+            setCountries(loadedCountries);
+            const initialRandomCountry = selectRandomCountry(loadedCountries);
+            setRandomCountry(initialRandomCountry);
+            drawMap(loadedCountries, initialRandomCountry, svg, path, projection);
+        });
+    }, []);
 
     const selectRandomCountry = (countriesList) => {
         const randomCountry = countriesList[Math.floor(Math.random() * countriesList.length)];
@@ -94,8 +83,6 @@ const Game = () => {
 
     const resetCountriesColor = (svg) => {
         svg.selectAll('path.country')
-            .transition()
-            .duration(500)
             .style('fill', baseColor.toString());
     };
 
@@ -114,37 +101,19 @@ const Game = () => {
             .on('mouseover', function(event, d) {
                 if (d.properties.name !== randomCountry.properties.name || 
                     d3.select(this).style('fill') !== correctColor.toString()) {
-                    d3.select(this)
-                        .transition()
-                        .duration(200)
-                        .style('fill', hoverColor.toString());
+                    d3.select(this).style('fill', hoverColor.toString());
                 }
             })
             .on('mouseout', function(event, d) {
                 if (d3.select(this).style('fill') !== correctColor.toString()) {
-                    d3.select(this)
-                        .transition()
-                        .duration(200)
-                        .style('fill', baseColor.toString());
+                    d3.select(this).style('fill', baseColor.toString());
                 }
             })
             .on('click', function(event, d) {
                 setTotalAttempts(prev => prev + 1);
 
                 if (d.properties.name === randomCountry.properties.name) {
-                    // Animation de réussite
-                    d3.select(this)
-                        .transition()
-                        .duration(500)
-                        .style('fill', correctColor.toString())
-                        .style('transform', 'scale(1.05)')
-                        .transition()
-                        .duration(500)
-                        .style('transform', 'scale(1)');
-
-                    // Mise à jour du streak
-                    setStreak(prev => prev + 1);
-                    
+                    d3.select(this).style('fill', correctColor.toString());
                     setCountriesFound(prev => {
                         const newCount = prev + 1;
                         if (newCount === numberOfQuestions) {
@@ -159,55 +128,25 @@ const Game = () => {
                         return newCount;
                     });
                 } else {
-                    // Animation d'erreur
-                    d3.select(this)
-                        .transition()
-                        .duration(300)
-                        .style('fill', incorrectColor.toString())
-                        .transition()
-                        .duration(300)
-                        .style('fill', baseColor.toString());
-
-                    // Réinitialisation du streak
-                    setStreak(0);
+                    d3.select(this).style('fill', incorrectColor.toString());
                     setIncorrectAttempts(prev => prev + 1);
                 }
             });
 
-        // Gestion améliorée du drag avec inertie
-        const drag = d3.drag()
-            .on('start', () => {
-                if (autoRotate) setAutoRotate(false);
-            })
-            .on('drag', (event) => {
-                const rotate = projection.rotate();
-                const k = 0.5;
-                projection.rotate([
-                    rotate[0] + event.dx * k,
-                    rotate[1] - event.dy * k
-                ]);
-                svg.selectAll('path').attr('d', path);
-            });
+        const drag = d3.drag().on('drag', (event) => {
+            const rotate = projection.rotate();
+            const k = 0.5;
+            projection.rotate([rotate[0] + event.dx * k, rotate[1] - event.dy * k]);
+            svg.selectAll('path').attr('d', path);
+        });
 
         svg.call(drag);
 
-        // Zoom amélioré avec limites et transitions fluides
-        const zoom = d3.zoom()
-            .scaleExtent([0.8, 5])
-            .on('zoom', (event) => {
-                const { transform } = event;
-                projection.scale(250 * transform.k);
-                svg.selectAll('path')
-                    .transition()
-                    .duration(50)
-                    .attr('d', path);
-                svg.select('.ocean')
-                    .transition()
-                    .duration(50)
-                    .attr('r', projection.scale());
-            });
-
-        svg.call(zoom);
+        svg.call(d3.zoom().on('zoom', (event) => {
+            const { k } = event.transform;
+            projection.scale(250 * k);
+            svg.selectAll('path').attr('d', path);
+        }));
     };
 
     const endGame = () => {
@@ -218,15 +157,25 @@ const Game = () => {
                 totalAttempts, 
                 incorrectAttempts, 
                 timeTaken, 
-                countriesFound,
-                streak 
+                countriesFound 
             } 
         });
     };
 
-    const toggleRotation = () => {
-        setAutoRotate(!autoRotate);
-    };
+    useEffect(() => {
+        if (gameEnded) {
+            const endTime = Date.now();
+            const timeTaken = (endTime - startTime) / 1000;
+            navigate('/statistics', { 
+                state: { 
+                    totalAttempts, 
+                    incorrectAttempts, 
+                    timeTaken, 
+                    countriesFound
+                } 
+            });
+        }
+    }, [gameEnded, totalAttempts, incorrectAttempts, startTime, navigate]);
 
     return (
         <div className="app-container-game" style={{ 
@@ -243,7 +192,6 @@ const Game = () => {
                             <p>Number of questions: {numberOfQuestions}</p>
                             {randomCountry && <p>Find this country: {randomCountry.properties.name}</p>}
                             <p>Countries found: {countriesFound} / {numberOfQuestions}</p>
-                            <p>Current streak: {streak}</p>
                             <svg></svg>
                         </div>
                     </div>
