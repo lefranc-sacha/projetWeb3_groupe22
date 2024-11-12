@@ -209,7 +209,8 @@ const Game = () => {
                             <p>Number of questions: {numberOfQuestions}</p>
                             {randomCountry && <p>Find this country: {randomCountry.properties.name}</p>}
                             <p>Countries found: {countriesFound} / {numberOfQuestions}</p>
-                            <svg></svg>
+                            
+                            <svg className='border rounded-4 border-primary'></svg>
                         </div>
                     </div>
                 </div>
