@@ -148,11 +148,22 @@ const Game = () => {
 
         svg.call(drag);
 
-        svg.call(d3.zoom().on('zoom', (event) => {
+        // Configure le zoom avec les limites
+        const zoom = d3.zoom()
+        .scaleExtent([1, 5]) // Limites du zoom
+        .on('zoom', (event) => {
             const { k } = event.transform;
             projection.scale(250 * k);
             svg.selectAll('path').attr('d', path);
-        }));
+        });
+
+        // Applique le comportement de zoom au SVG
+        svg.call(zoom);
+
+        // Désactive le comportement par défaut de défilement de la page quand on est sur l'élément SVG
+        svg.on("wheel", (event) => {
+        event.preventDefault();  // Empêche le zoom de la page
+        });
     };
 
     const endGame = () => {
