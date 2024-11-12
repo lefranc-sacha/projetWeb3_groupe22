@@ -23,14 +23,11 @@ const GameTraining = () => {
 
         const path = d3.geoPath().projection(projection);
 
-        const graticule = d3.geoGraticule();
-
+        // Dessiner le globe en bleu pour les océans
         svg.append('path')
-            .datum(graticule)
-            .attr('class', 'graticule')
+            .datum({ type: 'Sphere' })  // Créer une sphère qui représente l'ensemble du globe
             .attr('d', path)
-            .attr('fill', 'none')
-            .attr('stroke', 'lightgray');
+            .attr('fill', '#a0c4ff');  // Couleur bleu océan
 
         d3.json('https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson').then(world => {
             const loadedCountries = world.features;
@@ -53,24 +50,18 @@ const GameTraining = () => {
             .style('stroke-width', 0.5)
             .on('click', async function (event, d) {
                 try {
-                    // Fetch the country code and capital asynchronously
                     const countryCode = await getCountryCode(d.properties.name);
                     const countryCapital = await getCountryCapital(d.properties.name);
-            
-                    // Build the countryInfo object with the fetched data
                     const countryInfo = {
                         name: d.properties.name,
-                        flag: `https://flagsapi.com/${countryCode}/flat/64.png`, // Use the fetched country code for the flag
+                        flag: `https://flagsapi.com/${countryCode}/flat/64.png`,
                         capital: countryCapital
                     };
-            
-                    // Set the selected country with the new data
                     setSelectedCountry(countryInfo);
                 } catch (error) {
                     console.error('Error fetching country data:', error);
                 }
             })
-             
             .on('mouseover', function () {
                 d3.select(this).style('fill', 'orange');
             })
@@ -87,68 +78,93 @@ const GameTraining = () => {
 
         svg.call(drag);
 
-        svg.call(d3.zoom().on('zoom', (event) => {
+        // Configure le zoom avec les limites
+        const zoom = d3.zoom()
+        .scaleExtent([1, 5]) // Limites du zoom
+        .on('zoom', (event) => {
             const { k } = event.transform;
             projection.scale(250 * k);
             svg.selectAll('path').attr('d', path);
-        }));
+        });
+
+        // Applique le comportement de zoom au SVG
+        svg.call(zoom);
+
+        // Désactive le comportement par défaut de défilement de la page quand on est sur l'élément SVG
+        svg.on("wheel", (event) => {
+        event.preventDefault();  // Empêche le zoom de la page
+        });
     };
     
-    // Function to get country code using REST Countries API
     async function getCountryCode(countryName) {
         const response = await fetch(`https://restcountries.com/v3.1/name/${countryName}`);
         const data = await response.json();
         if (response.ok) {
-            // Return the ISO 3166-1 alpha-2 country code
             return data[0].cca2;
         } else {
             throw new Error('Country not found');
         }
     }
 
-    // Function to get country capital using REST Countries API
     async function getCountryCapital(countryName) {
         const response = await fetch(`https://restcountries.com/v3.1/name/${countryName}`);
         const data = await response.json();
         if (response.ok) {
-            // Return the capital city of the country
             return data[0].capital ? data[0].capital[0] : 'Capital not found';
         } else {
             throw new Error('Country not found');
         }
     }
 
-
     const handleHomePage = () => {
         navigate("/");
     };
 
     return (
-        
         <div className="app-container-training" style={{ backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
             <h1 className='text-center'>Training Mode</h1>
-            <div className="container border border-primary rounded-4 p-3" >
+            <div className="container border border-primary rounded-4 p-3">
                 <div className="row">
                     <div className="col text-center">
                         <h5>Train yourself, let's guess!</h5>
                     </div>
                 </div>
 
-                <div className="row ">
+                <div className="row align-items-center">
                     <div className="col">
                         <svg className='border rounded-4 border-primary'></svg>
                     </div>
-                </div>
 
-                {/* Fiche d'information du pays */}
-                {selectedCountry && (
-                    <div className="country-info-card" style={{ margin: '20px auto', padding: '10px', border: '1px solid #ccc', borderRadius: '8px', width: '300px', backgroundColor: '#f9f9f9' }}>
-                        <h3>{selectedCountry.name}</h3>
-                        <img src={selectedCountry.flag} alt={`Drapeau de ${selectedCountry.name}`} style={{ width: '100px', height: 'auto' }} />
-                        <p><strong>Capitale :</strong> {selectedCountry.capital}</p>
-                        {/* Ajoute ici d'autres informations */}
+                    <div className="col-3 border rounded-4 border-primary">
+                        <div className="container  ">
+                            <div className="row ">
+                                <div className="col ">
+                                {selectedCountry && (
+                                    <div>
+                                        <h3 className='text-center'>{selectedCountry.name}</h3>
+                                    </div>
+                                )}
+                                </div>
+                            </div>
+                            <div className="row">
+                                <div className="col text-center">
+                                    {selectedCountry && (
+                                        <img src={selectedCountry.flag} alt={`Drapeau de ${selectedCountry.name}`} style={{ width: '100px', height: 'auto' }} />
+                                    )}
+                                    
+                                </div>
+                            </div>
+
+                            <div className="row">
+                                <div className="col text-center">
+                                    {selectedCountry && (
+                                        <p><strong>Capitale :</strong> {selectedCountry.capital}</p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                )}
+                </div>
             </div>
 
             <div className="row">
