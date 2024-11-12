@@ -62,9 +62,8 @@ function StartPage() {
 
                 <div className="col">
                   <label className="form-label mt-4">Number of questions</label>
-                    <select className="form-select" id="selectGameMode" value={gameMode} onChange={(e) => setGameMode(e.target.value)}>
+                    <select className="form-select" id="selectGameMode" value={gameMode} onChange={(e) => setGameMode(e.target.value)} >
                       <option value={"names"}>Names</option>
-                      <option value={"flags"}>Flags</option>
                     </select>
                 </div>
               </div>
