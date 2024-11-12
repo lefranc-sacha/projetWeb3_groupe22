@@ -23,20 +23,11 @@ const GameTraining = () => {
 
         const path = d3.geoPath().projection(projection);
 
-        const graticule = d3.geoGraticule();
-
         // Dessiner le globe en bleu pour les océans
         svg.append('path')
             .datum({ type: 'Sphere' })  // Créer une sphère qui représente l'ensemble du globe
             .attr('d', path)
             .attr('fill', '#a0c4ff');  // Couleur bleu océan
-
-        svg.append('path')
-            .datum(graticule)
-            .attr('class', 'graticule')
-            .attr('d', path)
-            .attr('fill', 'none')
-            .attr('stroke', 'lightgray');
 
         d3.json('https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson').then(world => {
             const loadedCountries = world.features;
