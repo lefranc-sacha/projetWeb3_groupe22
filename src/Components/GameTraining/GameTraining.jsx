@@ -123,7 +123,7 @@ const GameTraining = () => {
         const legendHeight = 200; // Réduction de la hauteur
     
         const legend = svg.append('g')
-            .attr('transform', `translate(-30, ${height / 2 - legendHeight / 2})`); // Plus proche de la carte
+            .attr('transform', `translate(+40, ${height / 2 - legendHeight / 2})`); // Plus proche de la carte
     
         // Create a gradient for the legend
         const gradient = svg.append('defs')
