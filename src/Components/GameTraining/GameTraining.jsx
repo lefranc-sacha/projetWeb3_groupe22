@@ -9,7 +9,6 @@ const GameTraining = () => {
     const navigate = useNavigate();
     const [countries, setCountries] = useState([]);
     const [selectedCountry, setSelectedCountry] = useState(null);
-    const [countryData, setCountryData] = useState(null);
 
     const handleHomePage = () => {
         navigate('/');
@@ -50,10 +49,11 @@ const GameTraining = () => {
 
             setCountries(enrichedCountries);
 
-            const populationScale = d3.scaleSequential(d3.interpolateBlues)
-                .domain([0, d3.max(enrichedCountries, (d) => d.properties.population)]);
+            const populationScale = d3.scaleSequential(d3.interpolateYlOrRd)
+                .domain([0, d3.max(enrichedCountries, (d) => d.properties.population * 0.2)]); // Échelle ajustée pour visibilité accrue
 
             drawMap(enrichedCountries, svg, path, projection, populationScale);
+            drawVerticalLegend(svg, populationScale, width, height);
         });
     }, []);
 
@@ -86,10 +86,9 @@ const GameTraining = () => {
                     area: d.properties.area,
                 };
                 setSelectedCountry(countryInfo);
-                setCountryData(countryInfo);
             })
             .on('mouseover', function () {
-                d3.select(this).style('fill', 'orange');
+                d3.select(this).style('fill', '#FF5733'); // Highlight color on hover
             })
             .on('mouseout', function (event, d) {
                 d3.select(this).style('fill', populationScale(d.properties.population));
@@ -119,59 +118,59 @@ const GameTraining = () => {
         svg.call(zoom);
     };
 
-    useEffect(() => {
-        if (countryData) {
-            drawBarChart();
-        }
-    }, [countryData]);
-
-    const drawBarChart = () => {
-        d3.select('#bar-chart').selectAll('*').remove();
-
-        const margin = { top: 20, right: 20, bottom: 60, left: 80 };
-        const width = 400 - margin.left - margin.right;
-        const height = 300 - margin.top - margin.bottom;
-
-        const svg = d3.select('#bar-chart')
-            .attr('width', width + margin.left + margin.right)
-            .attr('height', height + margin.top + margin.bottom)
-            .append('g')
-            .attr('transform', `translate(${margin.left},${margin.top})`);
-
-        const data = [
-            { name: 'Population', value: countryData.population, unit: 'people' },
-            { name: 'Area', value: countryData.area, unit: 'km²' },
-        ];
-
-        const x = d3.scaleBand()
-            .range([0, width])
-            .domain(data.map((d) => d.name))
-            .padding(0.3);
-
-        const y = d3.scaleLinear()
-            .domain([0, d3.max(data, (d) => d.value)])
-            .range([height, 0]);
-
-        svg.append('g')
-            .attr('transform', `translate(0,${height})`)
-            .call(d3.axisBottom(x))
-            .selectAll('text')
-            .attr('transform', 'rotate(-45)')
-            .style('text-anchor', 'end');
-
-        svg.append('g').call(d3.axisLeft(y));
-
-        svg.selectAll('rect')
-            .data(data)
-            .enter()
-            .append('rect')
-            .attr('x', (d) => x(d.name))
-            .attr('y', (d) => y(d.value))
-            .attr('width', x.bandwidth())
-            .attr('height', (d) => height - y(d.value))
-            .attr('fill', '#69b3a2');
+    const drawVerticalLegend = (svg, populationScale, width, height) => {
+        const legendWidth = 15; // Réduction de la largeur
+        const legendHeight = 200; // Réduction de la hauteur
+    
+        const legend = svg.append('g')
+            .attr('transform', `translate(-30, ${height / 2 - legendHeight / 2})`); // Plus proche de la carte
+    
+        // Create a gradient for the legend
+        const gradient = svg.append('defs')
+            .append('linearGradient')
+            .attr('id', 'legendGradientVertical')
+            .attr('x1', '0%')
+            .attr('x2', '0%')
+            .attr('y1', '100%')
+            .attr('y2', '0%'); // Vertical gradient
+    
+        // Add stops to the gradient
+        gradient.append('stop')
+            .attr('offset', '0%')
+            .attr('stop-color', d3.interpolateYlOrRd(0)); // Light color
+        gradient.append('stop')
+            .attr('offset', '100%')
+            .attr('stop-color', d3.interpolateYlOrRd(1)); // Dark color
+    
+        // Draw the rectangle for the legend
+        legend.append('rect')
+            .attr('width', legendWidth)
+            .attr('height', legendHeight)
+            .style('fill', 'url(#legendGradientVertical)');
+    
+        // Add ticks to the legend
+        const legendScale = d3.scaleLinear()
+            .domain(populationScale.domain())
+            .range([legendHeight, 0]);
+    
+        const legendAxis = d3.axisLeft(legendScale)
+            .ticks(5)
+            .tickFormat(d3.format('~s'));
+    
+        legend.append('g')
+            .attr('transform', `translate(-5, 0)`) // Décale les ticks à gauche
+            .call(legendAxis);
+    
+        // Add a title to the legend
+        legend.append('text')
+            .attr('x', -legendWidth / 2 - 10) // Ajuste la position horizontale du texte
+            .attr('y', legendHeight / 2) // Centre verticalement
+            .attr('text-anchor', 'middle')
+            .attr('transform', `rotate(-90, -10, ${legendHeight / 2})`) // Rotation pour une lecture verticale
+            .style('font-size', '10px') // Texte plus petit
+            .text('Population Scale');
     };
-
+    
 
     return (
         <div className="app-container-training" style={{ backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
@@ -182,62 +181,26 @@ const GameTraining = () => {
                         <h5>Explore countries and their data!</h5>
                     </div>
                 </div>
-
                 <div className="row align-items-center">
                     <div className="col">
-                        <svg className='world-map border rounded-4 border-primary'></svg>
+                        <svg className="world-map border rounded-4 border-primary"></svg>
                     </div>
-
                     <div className="col-3 border rounded-4 border-primary">
-                        <div className="container  ">
-                            <div className="row ">
-                                <div className="col ">
-                                {selectedCountry && (
-                                    <div>
-                                        <h3 className='text-center'>{selectedCountry.name}</h3>
-                                    </div>
-                                )}
-                                </div>
+                        {selectedCountry && (
+                            <div className="text-center">
+                                <h3>{selectedCountry.name}</h3>
+                                <img src={selectedCountry.flag} alt={`${selectedCountry.name} Flag`} style={{ width: '100px' }} />
+                                <p><strong>Capital:</strong> {selectedCountry.capital}</p>
+                                <p><strong>Population:</strong> {selectedCountry.population.toLocaleString()}</p>
+                                <p><strong>Area:</strong> {selectedCountry.area.toLocaleString()} km²</p>
                             </div>
-                            <div className="row">
-                                <div className="col text-center">
-                                    {selectedCountry && (
-                                        <img src={selectedCountry.flag} alt={`Drapeau de ${selectedCountry.name}`} style={{ width: '100px', height: 'auto' }} />
-                                    )}
-                                    
-                                </div>
-                            </div>
-
-                            <div className="row">
-                                <div className="col text-center">
-                                    {selectedCountry && (
-                                        <p><strong>Capitale :</strong> {selectedCountry.capital}</p>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
+                        )}
                     </div>
                 </div>
-                
-
-
-                <div className="row border rounded-4 border-primary m-3">
+                <div className="row mt-3">
                     <div className="col text-center">
-                        <h5>Statistics:</h5>
-
-                        <div>
-                            <svg id="bar-chart"></svg>
-                        </div>
+                        <button className="btn btn-primary" onClick={handleHomePage}>Back to Home</button>
                     </div>
-                </div>
-
-
-            </div>
-            <div className="row mt-3">
-                <div className="col text-center">
-                    <button type="button" className="btn btn-primary rounded-5 my-2" onClick={handleHomePage}>
-                        Back to Home
-                    </button>
                 </div>
             </div>
         </div>
