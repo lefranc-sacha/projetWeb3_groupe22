@@ -3,19 +3,7 @@ import React, { useEffect, useState } from 'react';
 import * as d3 from 'd3';
 import { useNavigate } from 'react-router-dom';
 import backgroundImage from '../../images/earth-11048_1920.jpg';
-
-// Simulation de données pour les pays
-const generateCountryData = (countries) => {
-    return countries.map((country) => ({
-        ...country,
-        properties: {
-            ...country.properties,
-            population: Math.floor(Math.random() * 1000000000), // Population entre 0 et 1 milliard
-            gdp: Math.floor(Math.random() * 20000) * 1000000000, // PIB entre 0 et 20 billions
-            area: Math.floor(Math.random() * 10000000), // Superficie entre 0 et 10 millions km²
-        },
-    }));
-};
+import countriesData from '../../data/countries-readable.json'; // Importation des données réelles
 
 const GameTraining = () => {
     const navigate = useNavigate();
@@ -30,6 +18,7 @@ const GameTraining = () => {
     useEffect(() => {
         const width = 600;
         const height = 600;
+
         const svg = d3.select('svg.world-map')
             .attr('width', width)
             .attr('height', height)
@@ -43,24 +32,41 @@ const GameTraining = () => {
         const path = d3.geoPath().projection(projection);
 
         d3.json('https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson').then((world) => {
-            const loadedCountries = generateCountryData(world.features);
-            setCountries(loadedCountries);
+            const enrichedCountries = world.features.map((feature) => {
+                const countryName = feature.properties.name;
+                const countryInfo = countriesData.find((data) => data.name === countryName);
+
+                return {
+                    ...feature,
+                    properties: {
+                        ...feature.properties,
+                        population: countryInfo ? parseInt(countryInfo.population, 10) : 0,
+                        area: countryInfo ? parseInt(countryInfo.area, 10) : 0,
+                        capital: countryInfo?.capital || 'Unknown',
+                        flag: countryInfo ? `https://flagsapi.com/${countryInfo.alpha_2}/flat/64.png` : '',
+                    },
+                };
+            });
+
+            setCountries(enrichedCountries);
 
             const populationScale = d3.scaleSequential(d3.interpolateBlues)
-                .domain([0, d3.max(loadedCountries, (d) => d.properties.population)]);
+                .domain([0, d3.max(enrichedCountries, (d) => d.properties.population)]);
 
-            drawMap(loadedCountries, svg, path, projection, populationScale);
+            drawMap(enrichedCountries, svg, path, projection, populationScale);
         });
     }, []);
 
     const drawMap = (countriesList, svg, path, projection, populationScale) => {
         svg.selectAll('g').remove();
 
+        // Draw the sphere (background)
         svg.append('path')
             .datum({ type: 'Sphere' })
             .attr('d', path)
             .attr('fill', '#a0c4ff');
 
+        // Draw countries
         svg.append('g')
             .selectAll('path')
             .data(countriesList)
@@ -71,25 +77,16 @@ const GameTraining = () => {
             .attr('d', path)
             .style('stroke', 'white')
             .style('stroke-width', 0.5)
-            .on('click', async function (event, d) {
-                try {
-                    const countryCode = await getCountryCode(d.properties.name);
-                    const countryInfo = {
-                        name: d.properties.name,
-                        flag: `https://flagsapi.com/${countryCode}/flat/64.png`,
-                        population: d.properties.population,
-                        gdp: d.properties.gdp,
-                        area: d.properties.area,
-                    };
-                    setSelectedCountry(countryInfo);
-                    setCountryData(countryInfo);
-
-                    svg.selectAll('path')
-                        .style('stroke-width', (p) => (p === d ? 2 : 0.5))
-                        .style('stroke', (p) => (p === d ? '#FFA500' : 'white'));
-                } catch (error) {
-                    console.error('Error fetching country data:', error);
-                }
+            .on('click', (event, d) => {
+                const countryInfo = {
+                    name: d.properties.name,
+                    capital: d.properties.capital,
+                    flag: d.properties.flag,
+                    population: d.properties.population,
+                    area: d.properties.area,
+                };
+                setSelectedCountry(countryInfo);
+                setCountryData(countryInfo);
             })
             .on('mouseover', function () {
                 d3.select(this).style('fill', 'orange');
@@ -98,35 +95,29 @@ const GameTraining = () => {
                 d3.select(this).style('fill', populationScale(d.properties.population));
             });
 
+        // Add drag functionality
         const drag = d3.drag().on('drag', (event) => {
             const rotate = projection.rotate();
-            const k = 0.5;
-            projection.rotate([rotate[0] + event.dx * k, rotate[1] - event.dy * k]);
+            const sensitivity = 0.5; // Adjust sensitivity as needed
+            projection.rotate([
+                rotate[0] + event.dx * sensitivity,
+                rotate[1] - event.dy * sensitivity,
+            ]);
             svg.selectAll('path').attr('d', path);
         });
-
         svg.call(drag);
 
+        // Add zoom functionality
         const zoom = d3.zoom()
-            .scaleExtent([1, 5])
+            .scaleExtent([1, 5]) // Min and max zoom levels
             .on('zoom', (event) => {
-                const { k } = event.transform;
-                projection.scale(250 * k);
+                const { transform } = event;
+                projection.scale(250 * transform.k); // Adjust scale based on zoom
                 svg.selectAll('path').attr('d', path);
             });
 
         svg.call(zoom);
     };
-
-    async function getCountryCode(countryName) {
-        const response = await fetch(`https://restcountries.com/v3.1/name/${countryName}`);
-        const data = await response.json();
-        if (response.ok) {
-            return data[0].cca2;
-        } else {
-            throw new Error('Country not found');
-        }
-    }
 
     useEffect(() => {
         if (countryData) {
@@ -148,9 +139,8 @@ const GameTraining = () => {
             .attr('transform', `translate(${margin.left},${margin.top})`);
 
         const data = [
-            { name: 'Population', value: countryData.population, unit: 'millions', divider: 1000000 },
-            { name: 'GDP', value: countryData.gdp, unit: 'billions $', divider: 1000000000 },
-            { name: 'Area', value: countryData.area, unit: 'km²', divider: 1 },
+            { name: 'Population', value: countryData.population, unit: 'people' },
+            { name: 'Area', value: countryData.area, unit: 'km²' },
         ];
 
         const x = d3.scaleBand()
@@ -159,7 +149,7 @@ const GameTraining = () => {
             .padding(0.3);
 
         const y = d3.scaleLinear()
-            .domain([0, d3.max(data, (d) => d.value / d.divider)])
+            .domain([0, d3.max(data, (d) => d.value)])
             .range([height, 0]);
 
         svg.append('g')
@@ -176,11 +166,12 @@ const GameTraining = () => {
             .enter()
             .append('rect')
             .attr('x', (d) => x(d.name))
-            .attr('y', (d) => y(d.value / d.divider))
+            .attr('y', (d) => y(d.value))
             .attr('width', x.bandwidth())
-            .attr('height', (d) => height - y(d.value / d.divider))
+            .attr('height', (d) => height - y(d.value))
             .attr('fill', '#69b3a2');
     };
+
 
     return (
         <div className="app-container-training" style={{ backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
