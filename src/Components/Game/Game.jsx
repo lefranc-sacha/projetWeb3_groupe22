@@ -13,8 +13,7 @@ const Game = () => {
     const [randomCountry, setRandomCountry] = useState(null);
     const [countriesFound, setCountriesFound] = useState(0);
     const [gameEnded, setGameEnded] = useState(false);
-    const [elapsedTime, setElapsedTime] = useState(0);
-    const [timer, setTimer] = useState(null);
+    const [elapsedTime, setElapsedTime] = useState(0); // Temps écoulé en secondes
     const navigate = useNavigate();
     const [countries, setCountries] = useState([]);
 
@@ -23,24 +22,6 @@ const Game = () => {
     const hoverColor = d3.color('orange');
     const correctColor = d3.color('green');
     const incorrectColor = d3.color('red');
-    
-    // Create lighter/darker variants using d3-color methods
-    const lighterBase = baseColor.brighter(0.5);
-    const darkerBase = baseColor.darker(0.5);
-
-    useEffect(() => {
-        const t = d3.timer((elapsed) => {
-            setElapsedTime(elapsed);
-        });
-        setTimer(t);
-        return () => t.stop();
-    }, []);
-
-    useEffect(() => {
-        if (gameEnded && timer) {
-            timer.stop();
-        }
-    }, [gameEnded, timer]);
 
     useEffect(() => {
         const width = 600;
@@ -74,6 +55,16 @@ const Game = () => {
             drawMap(loadedCountries, initialRandomCountry, svg, path, projection);
         });
     }, []);
+
+    useEffect(() => {
+        // Mettre à jour le temps écoulé chaque seconde
+        const interval = setInterval(() => {
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            setElapsedTime(elapsed); // Met à jour l'état du temps écoulé
+        }, 1000);
+
+        return () => clearInterval(interval); // Nettoyage
+    }, [startTime]);
 
     const selectRandomCountry = (countriesList) => {
         const randomCountry = countriesList[Math.floor(Math.random() * countriesList.length)];
@@ -150,19 +141,16 @@ const Game = () => {
 
         // Configure le zoom avec les limites
         const zoom = d3.zoom()
-        .scaleExtent([1, 5]) // Limites du zoom
-        .on('zoom', (event) => {
-            const { k } = event.transform;
-            projection.scale(250 * k);
-            svg.selectAll('path').attr('d', path);
-        });
+            .scaleExtent([1, 5]) // Limites du zoom
+            .on('zoom', (event) => {
+                const { k } = event.transform;
+                projection.scale(250 * k);
+                svg.selectAll('path').attr('d', path);
+            });
 
-        // Applique le comportement de zoom au SVG
         svg.call(zoom);
-
-        // Désactive le comportement par défaut de défilement de la page quand on est sur l'élément SVG
         svg.on("wheel", (event) => {
-        event.preventDefault();  // Empêche le zoom de la page
+            event.preventDefault();
         });
     };
 
@@ -177,6 +165,13 @@ const Game = () => {
                 countriesFound 
             } 
         });
+    };
+
+    const formatTime = (seconds) => {
+        const hrs = String(Math.floor(seconds / 3600)).padStart(2, '0');
+        const mins = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+        const secs = String(seconds % 60).padStart(2, '0');
+        return `${hrs}:${mins}:${secs}`;
     };
 
     useEffect(() => {
@@ -202,6 +197,7 @@ const Game = () => {
         }}>
             <div>
                 <h2 className="text-center">Game</h2>
+
                 <div className="container">
                     <div className="row align-items-center">
                         <div className="col border border-primary rounded rounded-4 bg-overlay">
@@ -209,7 +205,11 @@ const Game = () => {
                             <p>Number of questions: {numberOfQuestions}</p>
                             {randomCountry && <p>Find this country: {randomCountry.properties.name}</p>}
                             <p>Countries found: {countriesFound} / {numberOfQuestions}</p>
-                            
+
+                            <div className="text-center my-3">
+                                <h3>Timer: {formatTime(elapsedTime)}</h3>
+                            </div>
+
                             <svg className='border rounded-4 border-primary'></svg>
                         </div>
                     </div>
