@@ -191,22 +191,56 @@ const GameTraining = () => {
                         <h5>Explore countries and their data!</h5>
                     </div>
                 </div>
+
                 <div className="row align-items-center">
                     <div className="col">
-                        <svg className="world-map border rounded-4 border-primary"></svg>
+                        <svg className='world-map border rounded-4 border-primary'></svg>
                     </div>
-                    {selectedCountry && (
-                        <div className="col-4 border rounded-4 border-primary p-3">
-                            <h3 className="text-center mb-3">{selectedCountry.name}</h3>
-                            <img
-                                src={selectedCountry.flag}
-                                alt={`Flag of ${selectedCountry.name}`}
-                                style={{ display: 'block', margin: '10px auto', width: '64px', height: 'auto' }}
-                            />
+
+                    <div className="col-3 border rounded-4 border-primary">
+                        <div className="container  ">
+                            <div className="row ">
+                                <div className="col ">
+                                {selectedCountry && (
+                                    <div>
+                                        <h3 className='text-center'>{selectedCountry.name}</h3>
+                                    </div>
+                                )}
+                                </div>
+                            </div>
+                            <div className="row">
+                                <div className="col text-center">
+                                    {selectedCountry && (
+                                        <img src={selectedCountry.flag} alt={`Drapeau de ${selectedCountry.name}`} style={{ width: '100px', height: 'auto' }} />
+                                    )}
+                                    
+                                </div>
+                            </div>
+
+                            <div className="row">
+                                <div className="col text-center">
+                                    {selectedCountry && (
+                                        <p><strong>Capitale :</strong> {selectedCountry.capital}</p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+
+
+                <div className="row border rounded-4 border-primary m-3">
+                    <div className="col text-center">
+                        <h5>Statistics:</h5>
+
+                        <div>
                             <svg id="bar-chart"></svg>
                         </div>
-                    )}
+                    </div>
                 </div>
+
+
             </div>
             <div className="row mt-3">
                 <div className="col text-center">
