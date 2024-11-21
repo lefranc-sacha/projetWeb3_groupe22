@@ -182,22 +182,74 @@ const GameTraining = () => {
                         <h5>Explore countries and their data!</h5>
                     </div>
                 </div>
-                <div className="row align-items-center">
-                    <div className="col">
-                        <svg className="world-map border rounded-4 border-primary"></svg>
-                    </div>
-                    <div className="col-3 border rounded-4 border-primary">
-                        {selectedCountry && (
-                            <div className="text-center">
-                                <h3>{selectedCountry.name}</h3>
-                                <img src={selectedCountry.flag} alt={`${selectedCountry.name} Flag`} style={{ width: '100px' }} />
-                                <p><strong>Capital:</strong> {selectedCountry.capital}</p>
-                                <p><strong>Population:</strong> {selectedCountry.population.toLocaleString()}</p>
-                                <p><strong>Area:</strong> {selectedCountry.area.toLocaleString()} km²</p>
+                <div className="row">
+                    <div className="container p-3">
+                        <div className="row justify-content-around align-items-center">
+                            <div className="col-auto">
+                                <svg className="world-map border rounded-4 border-primary"></svg>
                             </div>
-                        )}
+
+                            <div className="col-3 border rounded-4 border-primary ">
+                                <div className="container">
+                                    <div className="row">
+                                        <div className="col">
+                                            {selectedCountry && (
+                                            <div className="text-center">
+                                                <h3>{selectedCountry.name}</h3>
+                                            </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                    
+                                        
+                                    <div className="row">
+                                        <div className="col">
+                                            {selectedCountry && (
+                                            <div className="text-center">
+                                                <img src={selectedCountry.flag} alt={`${selectedCountry.name} Flag`} style={{ width: '100px' }} />
+                                            </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+
+                                    <div className="row">
+                                        <div className="col">
+                                            {selectedCountry && (
+                                            <div className="text-center">
+                                                <p><strong>Capital:</strong> {selectedCountry.capital}</p>
+                                            </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="row">
+                                        <div className="col">
+                                            {selectedCountry && (
+                                            <div className="text-center">
+                                                <p><strong>Population:</strong> {selectedCountry.population.toLocaleString()}</p>
+                                            </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="row">
+                                        <div className="col">
+                                            {selectedCountry && (
+                                            <div className="text-center">
+                                                <p><strong>Area:</strong> {selectedCountry.area.toLocaleString()} km²</p>
+                                            </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                    
                 </div>
+
                 <div className="row mt-3">
                     <div className="col text-center">
                         <button className="btn btn-primary rounded-5" onClick={handleHomePage}>Back to Home</button>
