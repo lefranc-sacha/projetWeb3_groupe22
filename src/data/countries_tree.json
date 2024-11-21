@@ -1,8 +1,8 @@
 {
-    "name": "World",
+    "name": "WORLD",
     "children": [
         {
-            "name": "EU",
+            "name": "EUROPE",
             "children": [
                 {
                     "name": "Andorra"
@@ -169,7 +169,7 @@
             ]
         },
         {
-            "name": "AS",
+            "name": "ASIA",
             "children": [
                 {
                     "name": "United Arab Emirates"
@@ -330,7 +330,7 @@
             ]
         },
         {
-            "name": "NA",
+            "name": "NORTH AMERICA",
             "children": [
                 {
                     "name": "Antigua and Barbuda"
@@ -461,7 +461,7 @@
             ]
         },
         {
-            "name": "AF",
+            "name": "AFRICA",
             "children": [
                 {
                     "name": "Angola"
@@ -640,7 +640,7 @@
             ]
         },
         {
-            "name": "AN",
+            "name": "ANTARTICA",
             "children": [
                 {
                     "name": "Antarctica"
@@ -660,7 +660,7 @@
             ]
         },
         {
-            "name": "SA",
+            "name": "SOUTH AMERICA",
             "children": [
                 {
                     "name": "Argentina"
@@ -707,7 +707,7 @@
             ]
         },
         {
-            "name": "OC",
+            "name": "OCEANIA",
             "children": [
                 {
                     "name": "American Samoa"

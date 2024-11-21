@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import countries from "../../data/countries-readable.json";
 import continentsData from "../../data/countries_tree.json";
 
+
 const CirclePackingAndTree = () => {
   const svgRef = useRef();
   const navigate = useNavigate();
@@ -185,7 +186,7 @@ const CirclePackingAndTree = () => {
       .attr("transform", (d) =>
         d.x < Math.PI
           ? `rotate(${(d.x * 180) / Math.PI-90}) translate(${d.y},0)`
-          : `rotate(${(d.x * 180) / Math.PI + 90}) translate(${d.y},0) rotate(180)`
+          : `rotate(${(d.x * 180) / Math.PI-90}) translate(${d.y},0) rotate(360)`
       );
   
     // Ajouter des cercles pour chaque nœud
