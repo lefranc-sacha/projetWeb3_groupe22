@@ -15,6 +15,9 @@ function StartPage() {
   const handleTrainingGame = () => {
     navigate('/gameTraining');
   };
+  const handleStatisticPage = () => {
+    navigate('/statisticPage');
+  };
 
 
   return (
@@ -50,25 +53,34 @@ function StartPage() {
             </div>
           </div>
 
+          <div className="col">
+            <div className="container">
+              <div className="row m-3">
+                <div className="col">
+                  <h5>Statistics:</h5>
+                </div>
+                
+              </div>
+              <div className="row m-3">
+                <div className="col">
+                  <h6>
+                  if you want to find out more about the statistics for the different countries in the world, don't hesitate to take a look.
+                  </h6>
+                </div>
+              </div>
+
+              <div className="row">
+                <div className="col text-center">
+                <button type="button" className="btn btn-primary rounded-5" onClick={handleStatisticPage}>View statistics</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
 
 
           <div className="col">
             <div className="container">
-              <div className="row m-3">
-
-                <div className="col align-self-center ">
-                  <h5>Select the game mode</h5>
-                </div>
-
-                <div className="col">
-                  <label className="form-label mt-4">Number of questions</label>
-                    <select className="form-select" id="selectGameMode" value={gameMode} onChange={(e) => setGameMode(e.target.value)} >
-                      <option value={"names"}>Names</option>
-                    </select>
-                </div>
-              </div>
-
-
               <div className="row m-3">
           <div className="col align-self-center">
             <h5>
