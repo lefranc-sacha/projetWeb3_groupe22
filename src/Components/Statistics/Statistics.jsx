@@ -82,7 +82,7 @@ const Statistics = () => {
     const drawHistogram = (stats) => {
         const margin = { top: 30, right: 0, bottom: 150, left: 80 };
         const width = 800 - margin.left - margin.right;
-        const height = 300 - margin.top - margin.bottom;
+        const height = 400 - margin.top - margin.bottom;
     
         const svg = d3
             .select('#histogram')
@@ -145,7 +145,7 @@ const Statistics = () => {
     const drawBarChart = (stats, avgTime) => {
         const margin = { top: 10, right: 10, bottom: 150, left: 40 };
         const width = 750 - margin.left - margin.right;
-        const height = 300 - margin.top - margin.bottom;
+        const height = 400 - margin.top - margin.bottom;
     
         const svg = d3
             .select('#bar-chart')
