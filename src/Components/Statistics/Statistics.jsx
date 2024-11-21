@@ -1,78 +1,206 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import * as d3 from 'd3';
 import { useLocation, useNavigate } from 'react-router-dom';
+import backgroundImage from '../../images/earth-11048_1920.jpg';
 
 const Statistics = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
-    // Récupérer les données transmises depuis Game.jsx
     const {
-        totalAttempts,
-        timeTaken,
-        countriesFound,
-        detailedStats
+        totalAttempts = 0,
+        timeTaken = 0,
+        countriesFound = 0,
+        detailedStats = [],
     } = location.state || {};
 
-    // Calculs supplémentaires
-    const successRate = ((countriesFound / totalAttempts) * 100); // Taux de réussite
-    const averageTimePerCountry = (timeTaken / countriesFound); // Temps moyen par pays
-    const incorrectAttempts = totalAttempts - countriesFound; // Tentatives incorrectes
+    const incorrectAttempts = totalAttempts - countriesFound;
+    const successRate = totalAttempts > 0 ? ((countriesFound / totalAttempts) * 100).toFixed(2) : 0;
+    const averageTimePerCountry = countriesFound > 0 ? (timeTaken / countriesFound).toFixed(2) : 0;
+
+    useEffect(() => {
+        clearAndDraw('#pie-chart', () => drawPieChart(countriesFound, incorrectAttempts));
+        clearAndDraw('#histogram', () => drawHistogram(detailedStats));
+        clearAndDraw('#bar-chart', () => drawBarChart(detailedStats, averageTimePerCountry));
+    }, [countriesFound, incorrectAttempts, detailedStats, averageTimePerCountry]);
+
+    const clearAndDraw = (selector, drawFunction) => {
+        d3.select(selector).selectAll('*').remove(); // Supprimer les éléments précédents
+        drawFunction(); // Dessiner le graphique
+    };
+
+    const drawPieChart = (goodAttempts, badAttempts) => {
+        const data = [
+            { label: 'Correct', value: goodAttempts },
+            { label: 'Incorrect', value: badAttempts },
+        ];
+
+        const width = 300;
+        const height = 300;
+        const radius = Math.min(width, height) / 2;
+
+        const svg = d3
+            .select('#pie-chart')
+            .attr('width', width)
+            .attr('height', height)
+            .append('g')
+            .attr('transform', `translate(${width / 2}, ${height / 2})`);
+
+        const color = d3.scaleOrdinal().domain(data).range(['#69b3a2', '#ff6f61']);
+
+        const pie = d3.pie().value(d => d.value);
+        const arc = d3.arc().innerRadius(0).outerRadius(radius);
+        const arcHover = d3.arc().innerRadius(0).outerRadius(radius + 10);
+
+        svg.selectAll('path')
+            .data(pie(data))
+            .enter()
+            .append('path')
+            .attr('d', arc)
+            .attr('fill', d => color(d.data.label))
+            .style('opacity', 0.7)
+            .on('mouseover', function (event, d) {
+                d3.select(this).transition().duration(200).attr('d', arcHover);
+            })
+            .on('mouseout', function () {
+                d3.select(this).transition().duration(200).attr('d', arc);
+            });
+
+        // Ajouter les statistiques dans le camembert
+        svg.append('text')
+            .attr('text-anchor', 'middle')
+            .attr('y', radius + 30)
+            .text(`Success Rate: ${successRate}%`)
+            .style('font-size', '14px')
+            .style('font-weight', 'bold');
+    };
+
+    const drawHistogram = (stats) => {
+        const margin = { top: 20, right: 20, bottom: 40, left: 50 };
+        const width = 400 - margin.left - margin.right;
+        const height = 300 - margin.top - margin.bottom;
+
+        const svg = d3
+            .select('#histogram')
+            .attr('width', width + margin.left + margin.right)
+            .attr('height', height + margin.top + margin.bottom)
+            .append('g')
+            .attr('transform', `translate(${margin.left}, ${margin.top})`);
+
+        const x = d3.scaleBand().range([0, width]).padding(0.1).domain(stats.map(d => d.country));
+        const y = d3.scaleLinear().range([height, 0]).domain([0, d3.max(stats, d => d.attempts)]);
+
+        svg.selectAll('rect')
+            .data(stats)
+            .enter()
+            .append('rect')
+            .attr('x', d => x(d.country))
+            .attr('y', height)
+            .attr('width', x.bandwidth())
+            .attr('height', 0)
+            .attr('fill', '#69b3a2')
+            .transition()
+            .duration(800)
+            .attr('y', d => y(d.attempts))
+            .attr('height', d => height - y(d.attempts));
+
+        svg.append('g')
+            .attr('transform', `translate(0,${height})`)
+            .call(d3.axisBottom(x))
+            .selectAll('text')
+            .style('text-anchor', 'end')
+            .attr('dx', '-0.8em')
+            .attr('dy', '0.15em')
+            .attr('transform', 'rotate(-40)');
+
+        svg.append('g').call(d3.axisLeft(y));
+    };
+
+    const drawBarChart = (stats, avgTime) => {
+        const margin = { top: 20, right: 20, bottom: 40, left: 100 };
+        const width = 400 - margin.left - margin.right;
+        const height = 300 - margin.top - margin.bottom;
+
+        const svg = d3
+            .select('#bar-chart')
+            .attr('width', width + margin.left + margin.right)
+            .attr('height', height + margin.top + margin.bottom)
+            .append('g')
+            .attr('transform', `translate(${margin.left}, ${margin.top})`);
+
+        const x = d3.scaleLinear().range([0, width]).domain([0, d3.max(stats, d => d.timeTaken)]);
+        const y = d3.scaleBand().range([0, height]).padding(0.1).domain(stats.map(d => d.country));
+
+        svg.selectAll('rect')
+            .data(stats)
+            .enter()
+            .append('rect')
+            .attr('y', d => y(d.country))
+            .attr('width', 0)
+            .attr('height', y.bandwidth())
+            .attr('fill', d => (d.timeTaken > avgTime ? '#ff6f61' : '#69b3a2'))
+            .transition()
+            .duration(800)
+            .attr('width', d => x(d.timeTaken));
+
+        svg.append('g').call(d3.axisLeft(y));
+        svg.append('g')
+            .attr('transform', `translate(0,${height})`)
+            .call(d3.axisBottom(x));
+    };
+
     return (
-        <div className="container my-4">
-            <h1 className="text-center">Game Statistics</h1>
-            <div className="row">
-                {/* Statistiques globales */}
-                <div className="col-md-6 mx-auto">
-                    <div className="card">
-                        <div className="card-body">
-                            <h3 className="card-title">Global Statistics</h3>
-                            <p>Total Attempts: {totalAttempts}</p>
-                            <p>Incorrect Attempts: {incorrectAttempts}</p>
-                            <p>Countries Found: {countriesFound}</p>
-                            <p>Total Time Taken: {timeTaken.toFixed(2)} seconds</p>
-                            <p>Average Time Per Country: {averageTimePerCountry} seconds</p>
-                            <p>Success Rate: {successRate}%</p>
+        <div
+            className="app-container-statistics"
+            style={{
+                backgroundImage: `url(${backgroundImage})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                minHeight: '100vh',
+                padding: '20px',
+            }}
+        >
+            <div className="container">
+                <h1 className="text-center text-white mb-4">Game Statistics</h1>
+
+                <div className="row">
+                    <div className="col-lg-6">
+                        <div className="card p-3">
+                            <h3>Attempts Distribution</h3>
+                            <svg id="pie-chart"></svg>
+                            <ul>
+                                <li>Total Attempts: {totalAttempts}</li>
+                                <li>Correct: {countriesFound}</li>
+                                <li>Incorrect: {incorrectAttempts}</li>
+                                <li>Success Rate: {successRate}%</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div className="col-lg-6">
+                        <div className="card p-3">
+                            <h3>Attempts by Country</h3>
+                            <svg id="histogram"></svg>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            {/* Détails par pays */}
-            <div className="row mt-4">
-                <div className="col">
-                    <h3 className="text-center">Details by Country</h3>
-                    <table className="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th>Country</th>
-                                <th>Attempts</th>
-                                <th>Time Taken (seconds)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {detailedStats && detailedStats.length > 0 ? (
-                                detailedStats.map((stat, index) => (
-                                    <tr key={index}>
-                                        <td>{stat.country}</td>
-                                        <td>{stat.attempts}</td>
-                                        <td>{stat.timeTaken}</td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan="3" className="text-center">No data available</td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
+                <div className="row mt-4">
+                    <div className="col-lg-12">
+                        <div className="card p-3">
+                            <h3>Time Taken by Country</h3>
+                            <svg id="bar-chart"></svg>
+                            <p>Total Time Taken: {timeTaken.toFixed(2)} seconds</p>
+                            <p>Average Time Per Country: {averageTimePerCountry} seconds</p>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            {/* Bouton de retour */}
-            <div className="text-center mt-4">
-                <button className="btn btn-primary" onClick={() => navigate('/')}>
-                    Back to Home
-                </button>
+                <div className="text-center mt-4">
+                    <button className="btn btn-primary" onClick={() => navigate('/')}>
+                        Back to Home
+                    </button>
+                </div>
             </div>
         </div>
     );
