@@ -151,23 +151,23 @@ const Statistics = () => {
 
     return (
         <div
-            className="app-container-statistics"
-            style={{
-                backgroundImage: `url(${backgroundImage})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                minHeight: '100vh',
-                padding: '20px',
-            }}
-        >
-            <div className="container">
-                <h1 className="text-center text-white mb-4">Game Statistics</h1>
+    className="container-fluid vh-100 d-flex flex-column"
+    style={{
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        overflowY: 'auto',
+    }}
+>
 
+            <h1 className="text-center text-white">Statistics</h1>
+
+            <div className="container p-1">
                 <div className="row">
-                    <div className="col-lg-6">
-                        <div className="card p-3">
-                            <h3>Attempts Distribution</h3>
-                            <svg id="pie-chart"></svg>
+                    <div className="col-6">
+                        <div className="container border border-primary rounded-4 p-3 overflow-auto">
+                            <h3 className="text-center">Attempts Distribution</h3>
+                            <svg id="pie-chart" className="d-block w-100" style={{ height: '300px' }}></svg>
                             <ul>
                                 <li>Total Attempts: {totalAttempts}</li>
                                 <li>Correct: {countriesFound}</li>
@@ -177,29 +177,33 @@ const Statistics = () => {
                         </div>
                     </div>
 
-                    <div className="col-lg-6">
-                        <div className="card p-3">
-                            <h3>Attempts by Country</h3>
-                            <svg id="histogram"></svg>
+                    <div className="col-6">
+                        <div className="container border border-primary rounded-4 p-3 overflow-auto">
+                            <h3 className="text-center">Attempts by Country</h3>
+                            <svg id="histogram" className="d-block w-100" style={{ height: '300px' }}></svg>
                         </div>
+                        
                     </div>
                 </div>
 
-                <div className="row mt-4">
-                    <div className="col-lg-12">
-                        <div className="card p-3">
-                            <h3>Time Taken by Country</h3>
-                            <svg id="bar-chart"></svg>
+
+                <div className="row py-3">
+                    <div className="container border border-primary rounded-4 p-3 overflow-auto">
+                        <div className="col">
+                            <h3 className="text-center">Time Taken by Country</h3>
+                            <svg id="bar-chart" className="d-block w-100" style={{ height: '300px' }}></svg>
                             <p>Total Time Taken: {timeTaken.toFixed(2)} seconds</p>
                             <p>Average Time Per Country: {averageTimePerCountry} seconds</p>
                         </div>
                     </div>
                 </div>
 
-                <div className="text-center mt-4">
-                    <button className="btn btn-primary" onClick={() => navigate('/')}>
-                        Back to Home
-                    </button>
+                <div className="row">
+                    <div className="text-center">
+                        <button className="btn btn-primary rounded-5" onClick={() => navigate('/')}>
+                            Back to Home
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
