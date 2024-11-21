@@ -189,16 +189,61 @@ const GameTraining = () => {
                                 <svg className="world-map border rounded-4 border-primary"></svg>
                             </div>
 
-                            <div className="col border rounded-4 border-primary ">
-                                {selectedCountry && (
-                                <div className="text-center">
-                                    <h3>{selectedCountry.name}</h3>
-                                    <img src={selectedCountry.flag} alt={`${selectedCountry.name} Flag`} style={{ width: '100px' }} />
-                                    <p><strong>Capital:</strong> {selectedCountry.capital}</p>
-                                    <p><strong>Population:</strong> {selectedCountry.population.toLocaleString()}</p>
-                                    <p><strong>Area:</strong> {selectedCountry.area.toLocaleString()} km²</p>
+                            <div className="col-3 border rounded-4 border-primary ">
+                                <div className="container">
+                                    <div className="row">
+                                        <div className="col">
+                                            {selectedCountry && (
+                                            <div className="text-center">
+                                                <h3>{selectedCountry.name}</h3>
+                                            </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                    
+                                        
+                                    <div className="row">
+                                        <div className="col">
+                                            {selectedCountry && (
+                                            <div className="text-center">
+                                                <img src={selectedCountry.flag} alt={`${selectedCountry.name} Flag`} style={{ width: '100px' }} />
+                                            </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+
+                                    <div className="row">
+                                        <div className="col">
+                                            {selectedCountry && (
+                                            <div className="text-center">
+                                                <p><strong>Capital:</strong> {selectedCountry.capital}</p>
+                                            </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="row">
+                                        <div className="col">
+                                            {selectedCountry && (
+                                            <div className="text-center">
+                                                <p><strong>Population:</strong> {selectedCountry.population.toLocaleString()}</p>
+                                            </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="row">
+                                        <div className="col">
+                                            {selectedCountry && (
+                                            <div className="text-center">
+                                                <p><strong>Area:</strong> {selectedCountry.area.toLocaleString()} km²</p>
+                                            </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                    
                                 </div>
-                                )}
                             </div>
                         </div>
                     </div>
