@@ -22,11 +22,11 @@ const GameTraining = () => {
             .attr('width', width)
             .attr('height', height)
             .style('display', 'block')
-            .style('margin', '0 auto');
+            .style('margin', ' auto');
 
         const projection = d3.geoOrthographic()
             .scale(250)
-            .translate([width / 2, height / 2]);
+            .translate([width / 2 + 40, height / 2]);
 
         const path = d3.geoPath().projection(projection);
 
@@ -119,11 +119,11 @@ const GameTraining = () => {
     };
 
     const drawVerticalLegend = (svg, populationScale, width, height) => {
-        const legendWidth = 15; // Réduction de la largeur
+        const legendWidth = 10; // Réduction de la largeur
         const legendHeight = 200; // Réduction de la hauteur
     
         const legend = svg.append('g')
-            .attr('transform', `translate(+40, ${height / 2 - legendHeight / 2})`); // Plus proche de la carte
+            .attr('transform', `translate(+50, ${height / 2  - legendHeight / 2})`); // Plus proche de la carte
     
         // Create a gradient for the legend
         const gradient = svg.append('defs')
@@ -163,12 +163,13 @@ const GameTraining = () => {
     
         // Add a title to the legend
         legend.append('text')
-            .attr('x', -legendWidth / 2 - 10) // Ajuste la position horizontale du texte
+            .attr('x', legendWidth + 10) // Décale le texte à droite de la barre
             .attr('y', legendHeight / 2) // Centre verticalement
-            .attr('text-anchor', 'middle')
-            .attr('transform', `rotate(-90, -10, ${legendHeight / 2})`) // Rotation pour une lecture verticale
-            .style('font-size', '10px') // Texte plus petit
+            .attr('text-anchor', 'middle') // Ancre le texte à gauche (pour alignement à droite de la barre)
+            .attr('transform', `rotate(90, ${legendWidth + 10}, ${legendHeight / 2})`) // Rotation pour une lecture verticale
+            .style('font-size', '10px')
             .text('Population Scale');
+
     };
     
 
@@ -199,7 +200,7 @@ const GameTraining = () => {
                 </div>
                 <div className="row mt-3">
                     <div className="col text-center">
-                        <button className="btn btn-primary" onClick={handleHomePage}>Back to Home</button>
+                        <button className="btn btn-primary rounded-5" onClick={handleHomePage}>Back to Home</button>
                     </div>
                 </div>
             </div>

@@ -3,7 +3,6 @@ import * as d3 from "d3";
 import { useNavigate } from "react-router-dom";
 import countries from "../../data/countries-readable.json";
 import continentsData from "../../data/countries_tree.json";
-import "./StatisticPage.css";
 
 const CirclePackingAndTree = () => {
   const svgRef = useRef();
