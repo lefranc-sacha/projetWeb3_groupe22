@@ -81,20 +81,21 @@ const Statistics = () => {
     
 
     const drawHistogram = (stats) => {
-        const margin = { top: 20, right: 20, bottom: 40, left: 50 };
-        const width = 400 - margin.left - margin.right;
+        const margin = { top: 30, right: 10, bottom: 100, left: 100 };
+        const width = 600 - margin.left - margin.right;
         const height = 300 - margin.top - margin.bottom;
-
+    
         const svg = d3
             .select('#histogram')
             .attr('width', width + margin.left + margin.right)
             .attr('height', height + margin.top + margin.bottom)
             .append('g')
             .attr('transform', `translate(${margin.left}, ${margin.top})`);
-
+    
         const x = d3.scaleBand().range([0, width]).padding(0.1).domain(stats.map(d => d.country));
         const y = d3.scaleLinear().range([height, 0]).domain([0, d3.max(stats, d => d.attempts)]);
-
+    
+        // Création des barres du graphique
         svg.selectAll('rect')
             .data(stats)
             .enter()
@@ -104,11 +105,25 @@ const Statistics = () => {
             .attr('width', x.bandwidth())
             .attr('height', 0)
             .attr('fill', '#69b3a2')
+            .on('mouseover', function (event, d) {
+                // Afficher la valeur au survol
+                svg.append('text')
+                    .attr('id', 'tooltip')
+                    .attr('x', x(d.country) + x.bandwidth() / 2)
+                    .attr('y', y(d.attempts) - 10)
+                    .attr('text-anchor', 'middle')
+                    .text(d.attempts);
+            })
+            .on('mouseout', function () {
+                // Retirer la valeur au sortir de la barre
+                d3.select('#tooltip').remove();
+            })
             .transition()
             .duration(800)
             .attr('y', d => y(d.attempts))
             .attr('height', d => height - y(d.attempts));
-
+    
+        // Création de l'axe X
         svg.append('g')
             .attr('transform', `translate(0,${height})`)
             .call(d3.axisBottom(x))
@@ -117,9 +132,11 @@ const Statistics = () => {
             .attr('dx', '-0.8em')
             .attr('dy', '0.15em')
             .attr('transform', 'rotate(-40)');
-
+    
+        // Création de l'axe Y
         svg.append('g').call(d3.axisLeft(y));
     };
+    
 
     const drawBarChart = (stats, avgTime) => {
         const margin = { top: 20, right: 20, bottom: 40, left: 100 };
@@ -203,7 +220,7 @@ const Statistics = () => {
                         <div className="container border border-primary rounded-4 p-3 overflow-auto">
                             <div className="row">
                                 <div className="col">
-                                <h3 className="text-center">Attempts by Country</h3>
+                                <h3>Attempts by Country</h3>
                                 </div>
                             </div>
                             <div className="row">
@@ -212,8 +229,8 @@ const Statistics = () => {
                                 </div>
                             </div>
                         </div>
-                        
                     </div>
+
                 </div>
 
 
