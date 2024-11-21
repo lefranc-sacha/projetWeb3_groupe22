@@ -34,46 +34,51 @@ const Statistics = () => {
             { label: 'Correct', value: goodAttempts },
             { label: 'Incorrect', value: badAttempts },
         ];
-
+    
         const width = 300;
         const height = 300;
         const radius = Math.min(width, height) / 2;
-
+    
+        // Sélection du SVG et initialisation
         const svg = d3
             .select('#pie-chart')
-            .attr('width', width)
-            .attr('height', height)
+            .attr('viewBox', `0 0 ${width} ${height}`) // ViewBox pour gérer la responsivité
             .append('g')
             .attr('transform', `translate(${width / 2}, ${height / 2})`);
-
-        const color = d3.scaleOrdinal().domain(data).range(['#69b3a2', '#ff6f61']);
-
+    
+        const color = d3.scaleOrdinal().domain(data.map(d => d.label)).range(['#69b3a2', '#ff6f61']);
+    
         const pie = d3.pie().value(d => d.value);
         const arc = d3.arc().innerRadius(0).outerRadius(radius);
-        const arcHover = d3.arc().innerRadius(0).outerRadius(radius + 10);
-
+    
+        // Création des segments
         svg.selectAll('path')
             .data(pie(data))
             .enter()
             .append('path')
             .attr('d', arc)
             .attr('fill', d => color(d.data.label))
-            .style('opacity', 0.7)
+            .style('opacity', 0.9)
             .on('mouseover', function (event, d) {
-                d3.select(this).transition().duration(200).attr('d', arcHover);
+                d3.select(this).style('opacity', 1); // Accentuation simple
+                svg.append('text')
+                    .attr('id', 'tooltip')
+                    .attr('x', arc.centroid(d)[0])
+                    .attr('y', arc.centroid(d)[1])
+                    .attr('text-anchor', 'middle')
+                    .attr('dy', '-10px')
+                    .style('font-size', '12px')
+                    .style('font-weight', 'bold')
+                    .style('fill', '#333')
+                    .text(d.data.label === 'Correct' ? `Good: ${d.data.value}` : `Bad: ${d.data.value}`);
             })
             .on('mouseout', function () {
-                d3.select(this).transition().duration(200).attr('d', arc);
+                d3.select(this).style('opacity', 0.9); // Retour à l'état initial
+                d3.select('#tooltip').remove(); // Supprimer le texte au survol
             });
-
-        // Ajouter les statistiques dans le camembert
-        svg.append('text')
-            .attr('text-anchor', 'middle')
-            .attr('y', radius + 30)
-            .text(`Success Rate: ${successRate}%`)
-            .style('font-size', '14px')
-            .style('font-weight', 'bold');
     };
+    
+    
 
     const drawHistogram = (stats) => {
         const margin = { top: 20, right: 20, bottom: 40, left: 50 };
@@ -162,25 +167,50 @@ const Statistics = () => {
 
             <h1 className="text-center text-white">Statistics</h1>
 
-            <div className="container p-1">
-                <div className="row">
-                    <div className="col-6">
+            <div className="container  border border-info border-4 p-1">
+
+                <div className="row border-4">
+
+                    <div className="col border border-info border-4 align-self-end">
                         <div className="container border border-primary rounded-4 p-3 overflow-auto">
-                            <h3 className="text-center">Attempts Distribution</h3>
-                            <svg id="pie-chart" className="d-block w-100" style={{ height: '300px' }}></svg>
-                            <ul>
-                                <li>Total Attempts: {totalAttempts}</li>
-                                <li>Correct: {countriesFound}</li>
-                                <li>Incorrect: {incorrectAttempts}</li>
-                                <li>Success Rate: {successRate}%</li>
-                            </ul>
+                            <div className="row">
+                                <div className="col">
+                                <h3 className="text-center">Attempts Distribution</h3>
+                                </div>
+                            </div>
+                            
+                            <div className="row">
+                                <div className="col">
+                                <svg id="pie-chart"></svg>
+                                </div>
+                            </div>
+                            
+                            <div className="row">
+                                <div className="col">
+                                    <ul>
+                                        <li>Total Attempts: {totalAttempts}</li>
+                                        <li>Correct: {countriesFound}</li>
+                                        <li>Incorrect: {incorrectAttempts}</li>
+                                        <li>Success Rate: {successRate}%</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        
                         </div>
                     </div>
 
-                    <div className="col-6">
+                    <div className="col border border-info border-4 align-self-center">
                         <div className="container border border-primary rounded-4 p-3 overflow-auto">
-                            <h3 className="text-center">Attempts by Country</h3>
-                            <svg id="histogram" className="d-block w-100" style={{ height: '300px' }}></svg>
+                            <div className="row">
+                                <div className="col">
+                                <h3 className="text-center">Attempts by Country</h3>
+                                </div>
+                            </div>
+                            <div className="row">
+                                <div className="col">
+                                <svg id="histogram" ></svg>
+                                </div>
+                            </div>
                         </div>
                         
                     </div>
@@ -191,7 +221,7 @@ const Statistics = () => {
                     <div className="container border border-primary rounded-4 p-3 overflow-auto">
                         <div className="col">
                             <h3 className="text-center">Time Taken by Country</h3>
-                            <svg id="bar-chart" className="d-block w-100" style={{ height: '300px' }}></svg>
+                            <svg id="bar-chart"></svg>
                             <p>Total Time Taken: {timeTaken.toFixed(2)} seconds</p>
                             <p>Average Time Per Country: {averageTimePerCountry} seconds</p>
                         </div>
