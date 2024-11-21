@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 import React, { useEffect } from 'react';
 import * as d3 from 'd3';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -139,32 +140,31 @@ const Statistics = () => {
     
 
     const drawBarChart = (stats, avgTime) => {
-        const margin = { top: 20, right: 20, bottom: 40, left: 100 };
+        const margin = { top: 10, right: 10, bottom: 40, left: 150 };
         const width = 400 - margin.left - margin.right;
         const height = 300 - margin.top - margin.bottom;
-
+    
         const svg = d3
             .select('#bar-chart')
             .attr('width', width + margin.left + margin.right)
             .attr('height', height + margin.top + margin.bottom)
             .append('g')
             .attr('transform', `translate(${margin.left}, ${margin.top})`);
-
+    
         const x = d3.scaleLinear().range([0, width]).domain([0, d3.max(stats, d => d.timeTaken)]);
         const y = d3.scaleBand().range([0, height]).padding(0.1).domain(stats.map(d => d.country));
-
+    
         svg.selectAll('rect')
             .data(stats)
             .enter()
             .append('rect')
             .attr('y', d => y(d.country))
-            .attr('width', 0)
             .attr('height', y.bandwidth())
             .attr('fill', d => (d.timeTaken > avgTime ? '#ff6f61' : '#69b3a2'))
             .transition()
             .duration(800)
             .attr('width', d => x(d.timeTaken));
-
+    
         svg.append('g').call(d3.axisLeft(y));
         svg.append('g')
             .attr('transform', `translate(0,${height})`)
@@ -184,11 +184,11 @@ const Statistics = () => {
 
             <h1 className="text-center text-white">Statistics</h1>
 
-            <div className="container  border border-info border-4 p-1">
+            <div className="container p-1">
 
                 <div className="row border-4">
 
-                    <div className="col border border-info border-4 align-self-end">
+                    <div className="col align-self-end">
                         <div className="container border border-primary rounded-4 p-3 overflow-auto">
                             <div className="row">
                                 <div className="col">
@@ -216,7 +216,7 @@ const Statistics = () => {
                         </div>
                     </div>
 
-                    <div className="col border border-info border-4 align-self-center">
+                    <div className="col align-self-center">
                         <div className="container border border-primary rounded-4 p-3 overflow-auto">
                             <div className="row">
                                 <div className="col">
@@ -236,12 +236,30 @@ const Statistics = () => {
 
                 <div className="row py-3">
                     <div className="container border border-primary rounded-4 p-3 overflow-auto">
-                        <div className="col">
-                            <h3 className="text-center">Time Taken by Country</h3>
-                            <svg id="bar-chart"></svg>
-                            <p>Total Time Taken: {timeTaken.toFixed(2)} seconds</p>
-                            <p>Average Time Per Country: {averageTimePerCountry} seconds</p>
+                        <div className="row">
+                            <div className="col">
+                                <h3 className="text-center">Time Taken by Country</h3>
+                            </div>
                         </div>
+
+                        <div className="row">
+                            <div className="col">
+                                <svg id="bar-chart"></svg>
+                            </div>
+                        </div>
+
+                        <div className="row">
+                            <div className="col">
+                                <p>You have taken a total of {timeTaken.toFixed(2)} seconds to finish or stop the game.</p>
+                            </div>
+                        </div>
+
+                        <div className="row">
+                            <div className="col">
+                                <p>Your average time per country is {averageTimePerCountry} seconds</p>
+                            </div>
+                        </div>
+                        
                     </div>
                 </div>
 
