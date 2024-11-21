@@ -217,7 +217,7 @@ const Statistics = () => {
                     </div>
 
                     <div className="col align-self-center">
-                        <div className="container border border-primary rounded-4 p-3 overflow-auto">
+                        <div className="container-fluid border border-primary rounded-4 p-3 overflow-auto bg-body">
                             <div className="row">
                                 <div className="col">
                                 <h3>Attempts by Country</h3>
