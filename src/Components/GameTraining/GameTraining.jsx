@@ -185,7 +185,7 @@ const GameTraining = () => {
                 <div className="row">
                     <div className="container p-3">
                         <div className="row justify-content-center align-items-center">
-                            <div className="col">
+                            <div className="col-auto">
                                 <svg className="world-map border rounded-4 border-primary"></svg>
                             </div>
 
