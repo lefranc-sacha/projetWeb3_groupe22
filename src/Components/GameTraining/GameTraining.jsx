@@ -182,22 +182,29 @@ const GameTraining = () => {
                         <h5>Explore countries and their data!</h5>
                     </div>
                 </div>
-                <div className="row align-items-center">
-                    <div className="col">
-                        <svg className="world-map border rounded-4 border-primary"></svg>
-                    </div>
-                    <div className="col-3 border rounded-4 border-primary">
-                        {selectedCountry && (
-                            <div className="text-center">
-                                <h3>{selectedCountry.name}</h3>
-                                <img src={selectedCountry.flag} alt={`${selectedCountry.name} Flag`} style={{ width: '100px' }} />
-                                <p><strong>Capital:</strong> {selectedCountry.capital}</p>
-                                <p><strong>Population:</strong> {selectedCountry.population.toLocaleString()}</p>
-                                <p><strong>Area:</strong> {selectedCountry.area.toLocaleString()} km²</p>
+                <div className="row">
+                    <div className="container-fluid">
+                        <div className="row align-items-center justify-content-center">
+                            <div className="col">
+                                <svg className="world-map border rounded-4 border-primary"></svg>
                             </div>
-                        )}
+
+                            <div className="col border rounded-4 border-primary">
+                                {selectedCountry && (
+                                <div className="text-center">
+                                    <h3>{selectedCountry.name}</h3>
+                                    <img src={selectedCountry.flag} alt={`${selectedCountry.name} Flag`} style={{ width: '100px' }} />
+                                    <p><strong>Capital:</strong> {selectedCountry.capital}</p>
+                                    <p><strong>Population:</strong> {selectedCountry.population.toLocaleString()}</p>
+                                    <p><strong>Area:</strong> {selectedCountry.area.toLocaleString()} km²</p>
+                                </div>
+                                )}
+                            </div>
+                        </div>
                     </div>
+                    
                 </div>
+
                 <div className="row mt-3">
                     <div className="col text-center">
                         <button className="btn btn-primary rounded-5" onClick={handleHomePage}>Back to Home</button>
