@@ -184,12 +184,12 @@ const GameTraining = () => {
                 </div>
                 <div className="row">
                     <div className="container-fluid">
-                        <div className="row align-items-center justify-content-center">
+                        <div className="row align-items-center justify-content-start">
                             <div className="col">
                                 <svg className="world-map border rounded-4 border-primary"></svg>
                             </div>
 
-                            <div className="col-3 border rounded-4 border-primary">
+                            <div className="col border rounded-4 border-primary">
                                 {selectedCountry && (
                                 <div className="text-center">
                                     <h3>{selectedCountry.name}</h3>
