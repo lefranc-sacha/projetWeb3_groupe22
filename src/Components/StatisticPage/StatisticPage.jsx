@@ -4,11 +4,10 @@ import { useNavigate } from "react-router-dom";
 import countries from "../../data/countries-readable.json";
 import continentsData from "../../data/countries_tree.json";
 
-
 const CirclePackingAndTree = () => {
   const svgRef = useRef();
   const navigate = useNavigate();
-  const [view, setView] = useState("circlePacking"); // State pour la vue active
+  const [view, setView] = useState("circlePacking"); // State for active view
 
   const handleHomePage = () => {
     navigate("/");
@@ -30,7 +29,10 @@ const CirclePackingAndTree = () => {
       children: countries
         .filter(
           (country) =>
-            country.population >= group.min && country.population < group.max
+            country.population >= group.min &&
+            country.population < group.max &&
+            country.name && // Vérifie que le pays a un nom
+            country.population > 1000 // Exclut les pays avec une population trop faible
         )
         .map((country) => ({
           name: country.name,
@@ -40,7 +42,7 @@ const CirclePackingAndTree = () => {
 
     const hierarchy = {
       name: "World",
-      children: groupedCountries.filter((group) => group.children.length > 0),
+      children: groupedCountries.filter((group) => group.children.length > 0), // Supprime les groupes vides
     };
 
     return hierarchy;
@@ -62,13 +64,11 @@ const CirclePackingAndTree = () => {
     pack(root);
 
     const svg = d3.select(svgRef.current);
-    svg.selectAll("*").remove(); // Effacer le contenu précédent
+    svg.selectAll("*").remove(); // Clear previous content
 
     svg
-    .attr("viewBox", `-${width / 2} -${height / 2} ${width} ${height}`) // Centre le graphique
-    .style("font", "10px sans-serif")
-   // Facultatif : Ajout d'un fond pour mieux visualiser
-  
+      .attr("viewBox", `-${width / 2} -${height / 2} ${width} ${height}`)
+      .style("font", "10px sans-serif");
 
     const g = svg.append("g").attr("transform", `translate(0,0)`);
 
@@ -80,7 +80,7 @@ const CirclePackingAndTree = () => {
       .data(root.descendants())
       .join("circle")
       .attr("transform", (d) => `translate(${d.x},${d.y})`)
-      .attr("r", (d) => d.r)
+      .attr("r", (d) => Math.max(d.r, 5)) // Rayon minimum pour éviter les cercles trop petits
       .attr("fill", (d) => (d.children ? color(d.depth) : "#69b3a2"))
       .attr("stroke", "#000")
       .attr("stroke-width", 0.5)
@@ -92,7 +92,7 @@ const CirclePackingAndTree = () => {
         }
       });
 
-      const text = g
+    const text = g
       .selectAll("text")
       .data(root.descendants())
       .join("text")
@@ -101,36 +101,16 @@ const CirclePackingAndTree = () => {
       .style("font-size", (d) => `${Math.min(d.r / 3, 14)}px`)
       .style("fill", "white")
       .style("pointer-events", "none")
-      .each(function (d) {
-        const textElement = d3.select(this);
-        textElement.text(null); // Clear any existing text
-    
-        if (!d.children) {
-          textElement.append("tspan")
-            .attr("x", 0)
-            .attr("dy", "0em")
-            .text(d.data.name);
-    
-          textElement.append("tspan")
-            .attr("x", 0)
-            .attr("dy", "1.2em")
-            .text("Population: " + Math.round(10 ** d.data.value));
-        } else {
-          textElement.append("tspan")
-            .attr("x", 0)
-            .attr("dy", "0em")
-            .text(d.data.name);
-        }
-      })
+      .style("opacity", (d) => (d.parent === root ? 1 : 0))
+      .text((d) => d.data.name);
 
     const zoomTo = (v) => {
       const k = Math.min(width, height) / v[2];
-
       view = v;
 
       circle
         .attr("transform", (d) => `translate(${(d.x - v[0]) * k},${(d.y - v[1]) * k})`)
-        .attr("r", (d) => d.r * k);
+        .attr("r", (d) => Math.max(d.r * k, 5));
 
       text.attr("transform", (d) => `translate(${(d.x - v[0]) * k},${(d.y - v[1]) * k})`);
     };
@@ -148,7 +128,22 @@ const CirclePackingAndTree = () => {
 
       text
         .transition(transition)
-        .style("opacity", (d) => (d.parent === focus ? 1 : 0));
+        .style("opacity", (d) => {
+          if (focus === d) {
+            return 1;
+          } else if (d.parent === focus) {
+            return 1;
+          } else {
+            return 0;
+          }
+        })
+        .text((d) => {
+          if (focus === d && !d.children) {
+            return `Population: ${Math.round(10 ** d.data.value)}`;
+          } else {
+            return d.data.name;
+          }
+        });
     };
 
     zoomTo([root.x, root.y, root.r * 2]);
@@ -156,25 +151,22 @@ const CirclePackingAndTree = () => {
 
   const renderTree = () => {
     const data = continentsData;
-  
-    // Dimensions et marges
-    const width = window.innerWidth * 0.9; // Largeur dynamique
-    const height = window.innerHeight * 0.9; // Hauteur dynamique
-    const radius = Math.min(width, height) / 2 - 100; // Rayon du cercle
-  
-    // Hiérarchie et structure de l'arbre
+
+    const width = window.innerWidth * 0.9;
+    const height = window.innerHeight * 0.9;
+    const radius = Math.min(width, height) / 2 - 100;
+
     const root = d3.hierarchy(data);
-    const tree = d3.tree().size([2 * Math.PI, radius]); // Organisation en cercle
+    const tree = d3.tree().size([2 * Math.PI, radius]);
     tree(root);
-  
+
     const svg = d3.select(svgRef.current);
-    svg.selectAll("*").remove(); // Efface tout contenu précédent
-  
-    // Configurer le conteneur SVG
+    svg.selectAll("*").remove();
+
     svg
       .attr("viewBox", [-width / 2, -height / 2, width, height].join(" "))
       .style("font", "10px sans-serif");
-  
+
     // Dessiner les liens
     const link = svg
       .append("g")
@@ -188,10 +180,10 @@ const CirclePackingAndTree = () => {
         "d",
         d3
           .linkRadial()
-          .angle((d) => d.x) // Angle en fonction de la position radiale
-          .radius((d) => d.y) // Rayon du lien
+          .angle((d) => d.x)
+          .radius((d) => d.y)
       );
-  
+
     // Dessiner les nœuds
     const node = svg
       .append("g")
@@ -200,34 +192,26 @@ const CirclePackingAndTree = () => {
       .join("g")
       .attr(
         "transform",
-        (d) => `rotate(${(d.x * 180) / Math.PI - 90}) translate(${d.y},0)` // Placement radial
-      )
-      .attr("text-anchor", (d) => (d.x < Math.PI ? "start" : "end"))
-      .attr("transform", (d) =>
-        d.x < Math.PI
-          ? `rotate(${(d.x * 180) / Math.PI-90}) translate(${d.y},0)`
-          : `rotate(${(d.x * 180) / Math.PI-90}) translate(${d.y},0) rotate(360)`
+        (d) => `rotate(${(d.x * 180) / Math.PI - 90}) translate(${d.y},0)`
       );
-  
-    // Ajouter des cercles pour chaque nœud
+
     node.append("circle")
-      .attr("r", 4) // Rayon du cercle
+      .attr("r", 4)
       .attr("fill", (d) => (d.children ? "#555" : "#999"));
-  
-    // Ajouter des étiquettes
+
+    // Ajouter les étiquettes orientées vers l'extérieur
     node
       .append("text")
       .attr("dy", "0.31em")
-      .attr("x", (d) => (d.x < Math.PI ? 6 : -6)) // Position du texte
-      .attr("text-anchor", (d) => (d.x < Math.PI ? "start" : "end")) // Alignement
-      .attr("transform", (d) => (d.x >= Math.PI ? "rotate(180)" : null)) // Retourne le texte si nécessaire
-      .text((d) => d.data.name) // Texte du nœud
-      .style("font-size", "10px") // Taille du texte
+      .attr("x", (d) => (d.x < Math.PI ? 6 : -6)) // Décale le texte à l'extérieur
+      .attr("text-anchor", (d) => (d.x < Math.PI ? "start" : "end")) // Aligne le texte
+      .attr("transform", (d) =>
+        d.x >= Math.PI ? "rotate(180)" : null // Retourne le texte si nécessaire
+      )
+      .text((d) => d.data.name)
+      .style("font-size", "10px")
       .style("fill", "black");
   };
-  
-  
-  
 
   useEffect(() => {
     if (view === "circlePacking") {
@@ -239,7 +223,6 @@ const CirclePackingAndTree = () => {
 
   return (
     <div className="chart-container">
-
       <div className="d-flex justify-content-center mb-3">
         <button
           className="btn btn-secondary mx-2"
