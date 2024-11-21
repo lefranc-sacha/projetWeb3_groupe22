@@ -1,58 +1,81 @@
-import React from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import backgroundImage from '../../images/earth-11048_1920.jpg';
+import React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const Statistics = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  
-  const { totalAttempts, incorrectAttempts, timeTaken, countriesFound } = location.state || {
-    totalAttempts: 0,
-    incorrectAttempts: 0,
-    timeTaken: 0,
-    countriesFound: 0
-  };
+    const location = useLocation();
+    const navigate = useNavigate();
 
-  const accuracy = totalAttempts ? 
-    ((totalAttempts - incorrectAttempts) / totalAttempts * 100).toFixed(1) : 
-    0;
+    // Récupérer les données transmises depuis Game.jsx
+    const {
+        totalAttempts,
+        timeTaken,
+        countriesFound,
+        detailedStats
+    } = location.state || {};
 
-  const handleRestartGame = () => {
-    navigate("/");
-  };
+    // Calculs supplémentaires
+    const successRate = ((countriesFound / totalAttempts) * 100); // Taux de réussite
+    const averageTimePerCountry = (timeTaken / countriesFound); // Temps moyen par pays
+    const incorrectAttempts = totalAttempts - countriesFound; // Tentatives incorrectes
+    return (
+        <div className="container my-4">
+            <h1 className="text-center">Game Statistics</h1>
+            <div className="row">
+                {/* Statistiques globales */}
+                <div className="col-md-6 mx-auto">
+                    <div className="card">
+                        <div className="card-body">
+                            <h3 className="card-title">Global Statistics</h3>
+                            <p>Total Attempts: {totalAttempts}</p>
+                            <p>Incorrect Attempts: {incorrectAttempts}</p>
+                            <p>Countries Found: {countriesFound}</p>
+                            <p>Total Time Taken: {timeTaken.toFixed(2)} seconds</p>
+                            <p>Average Time Per Country: {averageTimePerCountry} seconds</p>
+                            <p>Success Rate: {successRate}%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-  return (
-    <div className="app-container-statistics" style={{ 
-      backgroundImage: `url(${backgroundImage})`, 
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center'
-  }}>
-      <div className="container">
-          <h1 className="text-center mb-4">Statistics</h1>
-          <div className="container border border-primary rounded-4" style={{ 
-              maxWidth: '500px',  // Limite la largeur du conteneur
-              margin: '0 auto'    // Centre horizontalement
-          }}>
-              <div className="row">
-                  <div className="col text-center py-4">  {/* Ajout de padding vertical */}
-                      <p>Countries found: {countriesFound}</p>
-                      <p>Incorrect Attempts: {incorrectAttempts}</p>
-                      <p>Accuracy: {accuracy}%</p>
-                      <p>Time taken: {timeTaken.toFixed(2)} seconds</p>
-                      <button type="button" className="btn btn-primary rounded-5 my-2" onClick={handleRestartGame}>
-                          Restart Game
-                      </button>
-                  </div>
-              </div>
-          </div>
-      </div>
-  </div>
-  );
+            {/* Détails par pays */}
+            <div className="row mt-4">
+                <div className="col">
+                    <h3 className="text-center">Details by Country</h3>
+                    <table className="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Country</th>
+                                <th>Attempts</th>
+                                <th>Time Taken (seconds)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {detailedStats && detailedStats.length > 0 ? (
+                                detailedStats.map((stat, index) => (
+                                    <tr key={index}>
+                                        <td>{stat.country}</td>
+                                        <td>{stat.attempts}</td>
+                                        <td>{stat.timeTaken}</td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="3" className="text-center">No data available</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {/* Bouton de retour */}
+            <div className="text-center mt-4">
+                <button className="btn btn-primary" onClick={() => navigate('/')}>
+                    Back to Home
+                </button>
+            </div>
+        </div>
+    );
 };
 
 export default Statistics;
