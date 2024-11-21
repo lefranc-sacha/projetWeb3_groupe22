@@ -92,7 +92,7 @@ const CirclePackingAndTree = () => {
         }
       });
 
-    const text = g
+      const text = g
       .selectAll("text")
       .data(root.descendants())
       .join("text")
@@ -101,7 +101,27 @@ const CirclePackingAndTree = () => {
       .style("font-size", (d) => `${Math.min(d.r / 3, 14)}px`)
       .style("fill", "white")
       .style("pointer-events", "none")
-      .text((d) => d.data.name);
+      .each(function (d) {
+        const textElement = d3.select(this);
+        textElement.text(null); // Clear any existing text
+    
+        if (!d.children) {
+          textElement.append("tspan")
+            .attr("x", 0)
+            .attr("dy", "0em")
+            .text(d.data.name);
+    
+          textElement.append("tspan")
+            .attr("x", 0)
+            .attr("dy", "1.2em")
+            .text("Population: " + Math.round(10 ** d.data.value));
+        } else {
+          textElement.append("tspan")
+            .attr("x", 0)
+            .attr("dy", "0em")
+            .text(d.data.name);
+        }
+      })
 
     const zoomTo = (v) => {
       const k = Math.min(width, height) / v[2];
