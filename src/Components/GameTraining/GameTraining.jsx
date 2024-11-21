@@ -189,7 +189,7 @@ const GameTraining = () => {
                                 <svg className="world-map border rounded-4 border-primary"></svg>
                             </div>
 
-                            <div className="col border rounded-4 border-primary">
+                            <div className="col-3 border rounded-4 border-primary">
                                 {selectedCountry && (
                                 <div className="text-center">
                                     <h3>{selectedCountry.name}</h3>
