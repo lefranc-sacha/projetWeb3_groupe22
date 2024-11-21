@@ -182,7 +182,7 @@ const GameTraining = () => {
                         <h5>Explore countries and their data!</h5>
                     </div>
                 </div>
-                <div className="row align-items-center  justify-content-center border border-info border-4">
+                <div className="row align-items-center">
                     <div className="col">
                         <svg className="world-map border rounded-4 border-primary"></svg>
                     </div>
