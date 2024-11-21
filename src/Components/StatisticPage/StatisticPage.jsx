@@ -3,6 +3,7 @@ import * as d3 from "d3";
 import { useNavigate } from "react-router-dom";
 import countries from "../../data/countries-readable.json";
 import continentsData from "../../data/countries_tree.json";
+import backgroundImage from '../../images/earth-11048_1920.jpg';
 
 const CirclePackingAndTree = () => {
   const svgRef = useRef();
@@ -222,6 +223,8 @@ const CirclePackingAndTree = () => {
   }, [view]);
 
   return (
+    <div className="app-container-training" style={{ backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+    <h1 className="text-center">Statistics of all countries</h1>
     <div className="chart-container">
       <div className="d-flex justify-content-center mb-3">
         <button
@@ -244,6 +247,7 @@ const CirclePackingAndTree = () => {
         </button>
       </div>
     </div>
+  </div>
   );
 };
 
