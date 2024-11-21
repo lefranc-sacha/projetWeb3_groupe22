@@ -143,7 +143,7 @@ const Statistics = () => {
     
 
     const drawBarChart = (stats, avgTime) => {
-        const margin = { top: 10, right: 10, bottom: 150, left: 40 };
+        const margin = { top: 10, right: 10, bottom: 200, left: 40 };
         const width = 750 - margin.left - margin.right;
         const height = 400 - margin.top - margin.bottom;
     
