@@ -78,13 +78,11 @@ const Statistics = () => {
                 d3.select('#tooltip').remove(); // Supprimer le texte au survol
             });
     };
-    
-    
 
     const drawHistogram = (stats) => {
-        const margin = { top: 30, right: 10, bottom: 100, left: 100 };
-        const width = 600 - margin.left - margin.right;
-        const height = 300 - margin.top - margin.bottom;
+        const margin = { top: 30, right: 0, bottom: 150, left: 80 };
+        const width = 800 - margin.left - margin.right;
+        const height = 400 - margin.top - margin.bottom;
     
         const svg = d3
             .select('#histogram')
@@ -113,6 +111,7 @@ const Statistics = () => {
                     .attr('x', x(d.country) + x.bandwidth() / 2)
                     .attr('y', y(d.attempts) - 10)
                     .attr('text-anchor', 'middle')
+                    .style('font-size', '14px') // Taille du texte des tooltips
                     .text(d.attempts);
             })
             .on('mouseout', function () {
@@ -129,20 +128,24 @@ const Statistics = () => {
             .attr('transform', `translate(0,${height})`)
             .call(d3.axisBottom(x))
             .selectAll('text')
+            .style('font-size', '14px') // Agrandir la taille du texte de l'axe X
             .style('text-anchor', 'end')
             .attr('dx', '-0.8em')
             .attr('dy', '0.15em')
             .attr('transform', 'rotate(-40)');
     
         // Création de l'axe Y
-        svg.append('g').call(d3.axisLeft(y));
+        svg.append('g')
+            .call(d3.axisLeft(y))
+            .selectAll('text')
+            .style('font-size', '14px'); // Agrandir la taille du texte de l'axe Y
     };
     
 
     const drawBarChart = (stats, avgTime) => {
-        const margin = { top: 10, right: 10, bottom: 40, left: 150 };
-        const width = 400 - margin.left - margin.right;
-        const height = 300 - margin.top - margin.bottom;
+        const margin = { top: 10, right: 10, bottom: 200, left: 40 };
+        const width = 750 - margin.left - margin.right;
+        const height = 400 - margin.top - margin.bottom;
     
         const svg = d3
             .select('#bar-chart')
@@ -151,36 +154,48 @@ const Statistics = () => {
             .append('g')
             .attr('transform', `translate(${margin.left}, ${margin.top})`);
     
-        const x = d3.scaleLinear().range([0, width]).domain([0, d3.max(stats, d => d.timeTaken)]);
-        const y = d3.scaleBand().range([0, height]).padding(0.1).domain(stats.map(d => d.country));
+        // Inverser X et Y
+        const y = d3.scaleLinear().range([height, 0]).domain([0, d3.max(stats, d => d.timeTaken)]);
+        const x = d3.scaleBand().range([0, width]).padding(0.1).domain(stats.map(d => d.country));
     
+        // Ajout des barres
         svg.selectAll('rect')
             .data(stats)
             .enter()
             .append('rect')
-            .attr('y', d => y(d.country))
-            .attr('height', y.bandwidth())
+            .attr('x', d => x(d.country))
+            .attr('width', x.bandwidth())
             .attr('fill', d => (d.timeTaken > avgTime ? '#ff6f61' : '#69b3a2'))
             .transition()
             .duration(800)
-            .attr('width', d => x(d.timeTaken));
+            .attr('y', d => y(d.timeTaken))
+            .attr('height', d => height - y(d.timeTaken));
     
-        svg.append('g').call(d3.axisLeft(y));
+        // Ajout des axes
+        svg.append('g')
+            .call(d3.axisLeft(y))
+            .selectAll('text')
+            .style('font-size', '14px'); // Agrandir le texte vertical
+    
         svg.append('g')
             .attr('transform', `translate(0,${height})`)
-            .call(d3.axisBottom(x));
+            .call(d3.axisBottom(x))
+            .selectAll('text')
+            .style('font-size', '14px') // Agrandir le texte horizontal
+            .attr('transform', 'rotate(-45)') // Inclinaison pour meilleure lisibilité si nécessaire
+            .style('text-anchor', 'end');
     };
+    
 
     return (
-        <div
-    className="container-fluid vh-100 d-flex flex-column"
-    style={{
-        backgroundImage: `url(${backgroundImage})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        overflowY: 'auto',
-    }}
->
+        <div className="container-fluid vh-100 d-flex flex-column"
+        style={{
+            backgroundImage: `url(${backgroundImage})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            overflowY: 'auto',
+        }}
+        >
 
             <h1 className="text-center text-white">Statistics</h1>
 
@@ -217,7 +232,7 @@ const Statistics = () => {
                     </div>
 
                     <div className="col align-self-center">
-                        <div className="container border border-primary rounded-4 p-3 overflow-auto">
+                        <div className="container-fluid border border-primary rounded-4 p-3 overflow-auto bg-body">
                             <div className="row">
                                 <div className="col">
                                 <h3>Attempts by Country</h3>
@@ -225,7 +240,7 @@ const Statistics = () => {
                             </div>
                             <div className="row">
                                 <div className="col">
-                                <svg id="histogram" ></svg>
+                                    <svg id="histogram"></svg>
                                 </div>
                             </div>
                         </div>
@@ -235,7 +250,7 @@ const Statistics = () => {
 
 
                 <div className="row py-3">
-                    <div className="container border border-primary rounded-4 p-3 overflow-auto">
+                    <div className="container border border-primary rounded-4 p-3">
                         <div className="row">
                             <div className="col">
                                 <h3 className="text-center">Time Taken by Country</h3>
