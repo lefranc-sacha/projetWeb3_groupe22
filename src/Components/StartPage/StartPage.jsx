@@ -5,6 +5,7 @@ import backgroundImage from '../../images/earth-11048_1920.jpg';
 
 function StartPage() {
   const navigate = useNavigate();
+  // eslint-disable-next-line no-unused-vars
   const [gameMode, setGameMode] = useState('names');
   const [numberOfQuestions, setNumberOfQuestions] = useState(5);
 
@@ -63,7 +64,7 @@ function StartPage() {
               <div className="row m-3">
                 <div className="col">
                   <h6>
-                    if you want to find out more about the statistics for the different countries in the world, don't hesitate to take a look.
+                    if you want to find out more about the statistics for the different countries in the world, don&apos;t hesitate to take a look.
                   </h6>
                 </div>
               </div>
